@@ -6,8 +6,8 @@ const auth = require('../middleware/auth');
 // const validateObjectId = require('../middleware/validateObjectId');
 const { User, schema, loginSchema, getIdFromToken } = require('../models/user');
 
-router.get('/', async (req, res) => {
-    const user = await User.findById(req.body.id);
+router.get('/:id', async (req, res) => {
+    const user = await User.findById(req.params.id);
 
     if (!user)
         return res
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
     res.status(200).send(user);
 });
 
-router.get('/getIdFromToken', async (req, res) => {
+router.get('/', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findById(id);
 

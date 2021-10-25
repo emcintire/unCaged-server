@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     res.status(200).send(movies);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/findByID/:id', async (req, res) => {
     const movie = await Movie.findById(req.params.id);
 
     if (!movie)
@@ -17,6 +17,15 @@ router.get('/:id', async (req, res) => {
             .send('The movie with the given ID was not found.');
 
     res.status(200).send(movie);
+});
+
+router.get('/:genre', async (req, res) => {
+    const movies = await Movie.find({ genres: req.params.genre });
+
+    if (!movies)
+        return res.status(404).send('There are no movies with that genre.');
+
+    res.status(200).send(movies);
 });
 
 router.post('/', async (req, res) => {
