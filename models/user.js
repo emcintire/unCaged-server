@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     //Mongoose user schema
     isAdmin: {
         type: Boolean,
+        default: false,
     },
     name: {
         type: String,

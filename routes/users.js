@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const _ = require('lodash');
 const auth = require('../middleware/auth');
 // const async = require('../middleware/async');
 // const validateObjectId = require('../middleware/validateObjectId');
 const { User, schema, loginSchema, getIdFromToken } = require('../models/user');
-const { send } = require('process');
 
 router.get('/', async (req, res) => {
     const user = await User.findById(req.body.id);
@@ -39,7 +37,11 @@ router.post('/', async (req, res) => {
     let user = await User.findOne({ email: req.body.email });
     if (user) return res.status(400).send('User already registered');
 
-    user = new User(_.pick(req.body, ['name', 'email', 'password']));
+    user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+    });
     const salt = await bcrypt.genSalt(10); //Hash the password
     user.password = await bcrypt.hash(user.password, salt);
     await user.save();

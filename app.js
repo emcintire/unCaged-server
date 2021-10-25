@@ -8,6 +8,7 @@ const config = require('config');
 const cors = require('cors');
 
 const users = require('./routes/users');
+const movies = require('./routes/movies');
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -22,7 +23,7 @@ mongoose
 app.use(cors());
 app.use(express.json());
 app.use('/api/users', users);
-// app.use('/api/auth', auth);
+app.use('/api/movies', movies);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
