@@ -82,7 +82,7 @@ router.delete('/', auth, async (req, res) => {
     res.status(200).send();
 });
 
-router.post('/favorite', async (req, res) => {
+router.put('/favorite', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -98,7 +98,7 @@ router.post('/favorite', async (req, res) => {
     res.status(200).send();
 });
 
-router.post('/seen', async (req, res) => {
+router.put('/seen', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -114,11 +114,59 @@ router.post('/seen', async (req, res) => {
     res.status(200).send();
 });
 
-router.post('/watchlist', async (req, res) => {
+router.put('/watchlist', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
             watchlist: req.body.movie,
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.put('/removeFromSeen', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            seen: { title: req.body.movie.title },
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.put('/removeFromFavorites', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            favorites: { title: req.body.movie.title },
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.put('/removeFromWatchlist', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            watchlist: { title: req.body.movie.title },
         },
     });
 
