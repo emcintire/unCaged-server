@@ -41,6 +41,7 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
+        img: 'https://i.imgur.com/9NYgErPm.png',
     });
     const salt = await bcrypt.genSalt(10); //Hash the password
     user.password = await bcrypt.hash(user.password, salt);
@@ -72,6 +73,54 @@ router.delete('/', auth, async (req, res) => {
     //Deletes the user with the given id
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndRemove(id);
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.post('/favorite', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            favorites: req.body.movie,
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.post('/seen', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            seen: req.body.movie,
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.post('/watchlist', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            watchlist: req.body.movie,
+        },
+    });
 
     if (!user)
         return res

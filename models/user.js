@@ -38,7 +38,9 @@ const userSchema = new mongoose.Schema({
             rating: Number,
         },
     ],
-    watchlist: [String],
+    watchlist: [Object],
+    favorites: [Object],
+    seen: [Object],
 });
 
 userSchema.methods.generateAuthToken = function () {
