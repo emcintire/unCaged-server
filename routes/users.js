@@ -5,17 +5,7 @@ const auth = require('../middleware/auth');
 // const async = require('../middleware/async');
 // const validateObjectId = require('../middleware/validateObjectId');
 const { User, schema, loginSchema, getIdFromToken } = require('../models/user');
-
-router.get('/:id', async (req, res) => {
-    const user = await User.findById(req.params.id);
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send(user);
-});
+const { Movie, movieSchema } = require('../models/movie');
 
 router.get('/', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
@@ -82,11 +72,11 @@ router.delete('/', auth, async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/favorite', async (req, res) => {
+router.put('/favorites', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
-            favorites: req.body.movie,
+            favorites: req.body.id,
         },
     });
 
@@ -102,7 +92,7 @@ router.put('/seen', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
-            seen: req.body.movie,
+            seen: req.body.id,
         },
     });
 
@@ -118,7 +108,26 @@ router.put('/watchlist', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
-            watchlist: req.body.movie,
+            watchlist: req.body.id,
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.put('/rate', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            ratings: {
+                movie: req.body.id,
+                rating: req.body.rating,
+            },
         },
     });
 
@@ -134,7 +143,7 @@ router.put('/removeFromSeen', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
-            seen: { title: req.body.movie.title },
+            seen: req.body.id,
         },
     });
 
@@ -150,7 +159,7 @@ router.put('/removeFromFavorites', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
-            favorites: { title: req.body.movie.title },
+            favorites: req.body.id,
         },
     });
 
@@ -166,7 +175,7 @@ router.put('/removeFromWatchlist', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
-            watchlist: { title: req.body.movie.title },
+            watchlist: req.body.id,
         },
     });
 
@@ -178,98 +187,98 @@ router.put('/removeFromWatchlist', async (req, res) => {
     res.status(200).send();
 });
 
-// router.put('/updateProfile', auth, async (req, res) => {
-//     const { error } = updateSchema.validate(req.body);
-//     if (error) return res.status(400).send(error.details[0].message);
+router.put('/removeRating', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            ratings: {
+                movie: req.body.movie.id,
+                rating: req.body.rating,
+            },
+        },
+    });
 
-//     const id = getIdFromToken(req.header('x-auth-token'));
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
 
-//     let user = await User.findByIdAndUpdate(id, {
-//         $set: _.omit(req.body, req.body.address),
-//     });
+    res.status(200).send();
+});
 
-//     if (req.body.address) {
-//         //Updates the location of the logged in user
-//         const options = {
-//             provider: 'mapquest',
-//             httpAdapter: 'https',
-//             apiKey: 'HEEOmggzJMuZBvhQTMzHg5NzjAeBaIvo',
-//         };
+router.get('/seen', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
 
-//         //Converts address string to coordinates
-//         const geocoder = nodegeocoder(options);
-//         const result = await geocoder.geocode(req.body.address, function (err) {
-//             if (err) {
-//                 res.send(err);
-//             }
-//         });
-//         const coords = [result[0].longitude, result[0].latitude];
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
 
-//         user = await User.findByIdAndUpdate(id, {
-//             location: {
-//                 type: 'Point',
-//                 address: result[0].formattedAddress,
-//                 coordinates: coords,
-//                 index: '2d',
-//             },
-//         });
-//     }
+    const movies = [];
 
-//     if (!user)
-//         return res
-//             .status(404)
-//             .send('The user with the given ID was not found.');
+    for (const id of user.seen) {
+        let m = await Movie.findById(id);
 
-//     res.status(200).send();
-// });
+        if (!m)
+            return res
+                .status(404)
+                .send('The movie with the given ID was not found.');
 
-// router.put('/updateAccount', auth, async (req, res) => {
-//     // const { error } = updateSchema.validate(req.body);
-//     // if (error) return res.status(400).send(error.details[0].message);
+        movies.push(m);
+    }
 
-//     const id = getIdFromToken(req.header('x-auth-token'));
-//     let user = await User.findById(id);
+    res.status(200).send(movies);
+});
 
-//     if (req.body.oldPassword) {
-//         const validPassword = await bcrypt.compare(
-//             req.body.oldPassword,
-//             user.password
-//         );
-//         if (!validPassword)
-//             return res.status(400).send('Invalid email or password');
+router.get('/favorites', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
 
-//         //Hashes the users password for security
-//         const salt = await bcrypt.genSalt(10);
-//         const newPassword = await bcrypt.hash(req.body.newPassword, salt);
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
 
-//         user = await User.findByIdAndUpdate(
-//             id,
-//             {
-//                 email: req.body.email,
-//                 password: newPassword,
-//             },
-//             {
-//                 new: true,
-//             }
-//         );
-//     } else {
-//         user = await User.findByIdAndUpdate(
-//             id,
-//             {
-//                 email: req.body.email,
-//             },
-//             {
-//                 new: true,
-//             }
-//         );
-//     }
+    const movies = [];
 
-//     if (!user)
-//         return res
-//             .status(404)
-//             .send('The user with the given ID was not found.');
+    for (const id of user.favorites) {
+        let m = await Movie.findById(id);
 
-//     res.status(200).send();
-// });
+        if (!m)
+            return res
+                .status(404)
+                .send('The movie with the given ID was not found.');
+
+        movies.push(m);
+    }
+
+    res.status(200).send(movies);
+});
+
+router.get('/watchlist', async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    const movies = [];
+
+    for (const id of user.watchlist) {
+        let m = await Movie.findById(id);
+
+        if (!m)
+            return res
+                .status(404)
+                .send('The movie with the given ID was not found.');
+
+        movies.push(m);
+    }
+
+    res.status(200).send(movies);
+});
 
 module.exports = router;

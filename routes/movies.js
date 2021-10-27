@@ -19,15 +19,6 @@ router.get('/findByID/:id', async (req, res) => {
     res.status(200).send(movie);
 });
 
-router.get('/:genre', async (req, res) => {
-    const movies = await Movie.find({ genres: req.params.genre });
-
-    if (!movies)
-        return res.status(404).send('There are no movies with that genre.');
-
-    res.status(200).send(movies);
-});
-
 router.post('/', async (req, res) => {
     //Creates a movie with the properties: title, director, description, date, img
     const { error } = movieSchema.validate(req.body);

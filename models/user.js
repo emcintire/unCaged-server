@@ -34,22 +34,13 @@ const userSchema = new mongoose.Schema({
     },
     ratings: [
         {
-            id: String,
+            movie: String,
             rating: Number,
         },
     ],
-    watchlist: {
-        type: [Object],
-        unique: true,
-    },
-    favorites: {
-        type: [Object],
-        unique: true,
-    },
-    seen: {
-        type: [Object],
-        unique: true,
-    },
+    watchlist: [String],
+    favorites: [String],
+    seen: [String],
 });
 
 userSchema.methods.generateAuthToken = function () {
