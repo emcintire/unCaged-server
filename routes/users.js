@@ -2,10 +2,15 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const auth = require('../middleware/auth');
-// const async = require('../middleware/async');
-// const validateObjectId = require('../middleware/validateObjectId');
-const { User, schema, loginSchema, getIdFromToken } = require('../models/user');
-const { Movie, movieSchema } = require('../models/movie');
+const admin = require('../middleware/admin');
+const {
+    User,
+    schema,
+    loginSchema,
+    getIdFromToken,
+    updateSchema,
+} = require('../models/user');
+const { Movie } = require('../models/movie');
 
 router.get('/', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
@@ -24,7 +29,7 @@ router.post('/', async (req, res) => {
     const { error } = schema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    let user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email });
     if (user) return res.status(400).send('User already registered');
 
     user = new User({
@@ -41,11 +46,35 @@ router.post('/', async (req, res) => {
     res.send(token);
 });
 
+router.put('/', async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
+    if (!user) return res.status(400).send('User not found');
+
+    if (req.body.password) {
+        const validPassword = await bcrypt.compare(
+            req.body.password,
+            user.password
+        );
+        if (!validPassword)
+            return res.status(400).send('Invalid email or password');
+    }
+
+    await findByIdAndUpdate(id, {
+        $set: req.body,
+    });
+
+    res.status(200).send();
+});
+
 router.post('/login', async (req, res) => {
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    let user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(400).send('Invalid email or password');
 
     const validPassword = await bcrypt.compare(
@@ -59,7 +88,7 @@ router.post('/login', async (req, res) => {
     res.send(token);
 });
 
-router.delete('/', auth, async (req, res) => {
+router.delete('/', admin, async (req, res) => {
     //Deletes the user with the given id
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndRemove(id);
@@ -72,7 +101,10 @@ router.delete('/', auth, async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/favorites', async (req, res) => {
+router.put('/favorites', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -88,7 +120,10 @@ router.put('/favorites', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/seen', async (req, res) => {
+router.put('/seen', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -104,7 +139,10 @@ router.put('/seen', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/watchlist', async (req, res) => {
+router.put('/watchlist', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -120,7 +158,7 @@ router.put('/watchlist', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/rate', async (req, res) => {
+router.put('/rate', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -139,7 +177,10 @@ router.put('/rate', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/removeFromSeen', async (req, res) => {
+router.put('/removeFromSeen', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
@@ -155,7 +196,10 @@ router.put('/removeFromSeen', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/removeFromFavorites', async (req, res) => {
+router.put('/removeFromFavorites', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
@@ -171,7 +215,10 @@ router.put('/removeFromFavorites', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/removeFromWatchlist', async (req, res) => {
+router.put('/removeFromWatchlist', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
@@ -187,7 +234,7 @@ router.put('/removeFromWatchlist', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/removeRating', async (req, res) => {
+router.put('/removeRating', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
@@ -206,7 +253,7 @@ router.put('/removeRating', async (req, res) => {
     res.status(200).send();
 });
 
-router.get('/seen', async (req, res) => {
+router.get('/seen', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findById(id);
 
@@ -231,7 +278,7 @@ router.get('/seen', async (req, res) => {
     res.status(200).send(movies);
 });
 
-router.get('/favorites', async (req, res) => {
+router.get('/favorites', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findById(id);
 
@@ -256,7 +303,7 @@ router.get('/favorites', async (req, res) => {
     res.status(200).send(movies);
 });
 
-router.get('/watchlist', async (req, res) => {
+router.get('/watchlist', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findById(id);
 

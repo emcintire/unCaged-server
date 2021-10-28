@@ -1,6 +1,5 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
-const config = require('config');
 
 const movieSchema = new mongoose.Schema({
     //Mongoose movie schema

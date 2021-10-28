@@ -1,7 +1,6 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const config = require('config');
 
 const userSchema = new mongoose.Schema({
     //Mongoose user schema
@@ -47,7 +46,7 @@ userSchema.methods.generateAuthToken = function () {
     //Generates a json web token used for logging in users
     return jwt.sign(
         { _id: this._id, isAdmin: this.isAdmin },
-        config.get('jwtPrivateKey')
+        process.env.JWT_PRIVATE_KEY
     );
 };
 
@@ -73,9 +72,19 @@ const loginSchema = Joi.object({
         .required(),
 });
 
+const updateSchema = Joi.object({
+    name: Joi.string().min(1).max(100),
+    email: Joi.string().email().min(1).max(100),
+    id: Joi.string().min(1).max(100),
+    img: Joi.string().min(1).max(100),
+    password: Joi.string().pattern(
+        /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
+    ),
+});
+
 const getIdFromToken = function (token) {
     //Decodes the json web token and returns the users id
-    const decoded = jwt.verify(token, config.get('jwtPrivateKey'));
+    const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
     return decoded._id;
 };
 
@@ -93,4 +102,5 @@ exports.remove_by_value = this.remove_by_value;
 exports.getIdFromToken = getIdFromToken;
 exports.schema = schema;
 exports.loginSchema = loginSchema;
+exports.updateSchema = updateSchema;
 exports.User = User;
