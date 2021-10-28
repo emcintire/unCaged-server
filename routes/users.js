@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const _ = require('lodash');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const {
@@ -46,7 +47,7 @@ router.post('/', async (req, res) => {
     res.send(token);
 });
 
-router.put('/', async (req, res) => {
+router.put('/', auth, async (req, res) => {
     const { error } = updateSchema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -54,18 +55,32 @@ router.put('/', async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(400).send('User not found');
 
-    if (req.body.password) {
-        const validPassword = await bcrypt.compare(
-            req.body.password,
-            user.password
-        );
-        if (!validPassword)
-            return res.status(400).send('Invalid email or password');
-    }
-
-    await findByIdAndUpdate(id, {
+    await User.findByIdAndUpdate(id, {
         $set: req.body,
     });
+
+    res.status(200).send();
+});
+
+router.put('/changePassword', auth, async (req, res) => {
+    const { error } = updateSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
+    if (!user) return res.status(400).send('User not found');
+
+    const validPassword = await bcrypt.compare(
+        req.body.currentPassword,
+        user.password
+    );
+    if (!validPassword) return res.status(400).send('Invalid password');
+
+    const salt = await bcrypt.genSalt(10); //Hash the password
+    const newPassword = await bcrypt.hash(req.body.password, salt);
+
+    user.password = newPassword;
+    await user.save();
 
     res.status(200).send();
 });

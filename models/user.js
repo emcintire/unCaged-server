@@ -79,6 +79,9 @@ const updateSchema = Joi.object({
     password: Joi.string().pattern(
         /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
     ),
+    currentPassword: Joi.string().pattern(
+        /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
+    ),
 });
 
 const getIdFromToken = function (token) {
