@@ -221,8 +221,7 @@ router.put('/removeRating', auth, async (req, res) => {
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
             ratings: {
-                movie: req.body.movie.id,
-                rating: req.body.rating,
+                movie: req.body.id,
             },
         },
     });
