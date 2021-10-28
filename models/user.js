@@ -75,7 +75,6 @@ const loginSchema = Joi.object({
 const updateSchema = Joi.object({
     name: Joi.string().min(1).max(100),
     email: Joi.string().email().min(1).max(100),
-    id: Joi.string().min(1).max(100),
     img: Joi.string().min(1).max(100),
     password: Joi.string().pattern(
         /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/

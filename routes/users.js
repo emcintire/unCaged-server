@@ -102,9 +102,6 @@ router.delete('/', admin, async (req, res) => {
 });
 
 router.put('/favorites', auth, async (req, res) => {
-    const { error } = updateSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -121,9 +118,6 @@ router.put('/favorites', auth, async (req, res) => {
 });
 
 router.put('/seen', auth, async (req, res) => {
-    const { error } = updateSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -140,9 +134,6 @@ router.put('/seen', auth, async (req, res) => {
 });
 
 router.put('/watchlist', auth, async (req, res) => {
-    const { error } = updateSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $push: {
@@ -178,9 +169,6 @@ router.put('/rate', auth, async (req, res) => {
 });
 
 router.put('/removeFromSeen', auth, async (req, res) => {
-    const { error } = updateSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
@@ -197,9 +185,6 @@ router.put('/removeFromSeen', auth, async (req, res) => {
 });
 
 router.put('/removeFromFavorites', auth, async (req, res) => {
-    const { error } = updateSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
@@ -216,9 +201,6 @@ router.put('/removeFromFavorites', auth, async (req, res) => {
 });
 
 router.put('/removeFromWatchlist', auth, async (req, res) => {
-    const { error } = updateSchema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
