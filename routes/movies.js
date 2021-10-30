@@ -85,10 +85,14 @@ router.get('/avgRating', async (req, res) => {
         ratings.push(rating.rating);
     }
 
-    let avg = ratings.reduce((a, b) => a + b) / ratings.length;
-    avg = Math.round(avg * 10) / 10;
+    if (ratings.length === 0) {
+        res.status(200).send('0');
+    } else {
+        let avg = ratings.reduce((a, b) => a + b) / ratings.length;
+        avg = Math.round(avg * 10) / 10;
 
-    res.status(200).send(JSON.stringify(avg));
+        res.status(200).send(JSON.stringify(avg));
+    }
 });
 
 module.exports = router;
