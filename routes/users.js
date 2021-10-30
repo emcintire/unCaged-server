@@ -11,7 +11,7 @@ const {
     getIdFromToken,
     updateSchema,
 } = require('../models/user');
-const { Movie } = require('../models/movie');
+const { Movie, movieSchema } = require('../models/movie');
 
 router.get('/', async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
@@ -116,6 +116,31 @@ router.delete('/', admin, async (req, res) => {
     res.status(200).send();
 });
 
+router.get('/favorites', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    const movies = [];
+
+    for (const id of user.favorites) {
+        let movie = await Movie.findById(id);
+
+        if (!movie)
+            return res
+                .status(404)
+                .send('The movie with the given ID was not found.');
+
+        movies.push(movie);
+    }
+
+    res.status(200).send(movies);
+});
+
 router.put('/favorites', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
@@ -132,112 +157,11 @@ router.put('/favorites', auth, async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/seen', auth, async (req, res) => {
-    const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findByIdAndUpdate(id, {
-        $push: {
-            seen: req.body.id,
-        },
-    });
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.put('/watchlist', auth, async (req, res) => {
-    const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findByIdAndUpdate(id, {
-        $push: {
-            watchlist: req.body.id,
-        },
-    });
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.put('/rate', auth, async (req, res) => {
-    const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findByIdAndUpdate(id, {
-        $push: {
-            ratings: {
-                movie: req.body.id,
-                rating: req.body.rating,
-            },
-        },
-    });
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.put('/removeFromSeen', auth, async (req, res) => {
-    const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findByIdAndUpdate(id, {
-        $pull: {
-            seen: req.body.id,
-        },
-    });
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.put('/removeFromFavorites', auth, async (req, res) => {
+router.delete('/favorites', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndUpdate(id, {
         $pull: {
             favorites: req.body.id,
-        },
-    });
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.put('/removeFromWatchlist', auth, async (req, res) => {
-    const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findByIdAndUpdate(id, {
-        $pull: {
-            watchlist: req.body.id,
-        },
-    });
-
-    if (!user)
-        return res
-            .status(404)
-            .send('The user with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.put('/removeRating', auth, async (req, res) => {
-    const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findByIdAndUpdate(id, {
-        $pull: {
-            ratings: {
-                movie: req.body.id,
-            },
         },
     });
 
@@ -274,29 +198,36 @@ router.get('/seen', auth, async (req, res) => {
     res.status(200).send(movies);
 });
 
-router.get('/favorites', auth, async (req, res) => {
+router.put('/seen', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
-    const user = await User.findById(id);
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            seen: req.body.id,
+        },
+    });
 
     if (!user)
         return res
             .status(404)
             .send('The user with the given ID was not found.');
 
-    const movies = [];
+    res.status(200).send();
+});
 
-    for (const id of user.favorites) {
-        let movie = await Movie.findById(id);
+router.delete('/seen', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            seen: req.body.id,
+        },
+    });
 
-        if (!movie)
-            return res
-                .status(404)
-                .send('The movie with the given ID was not found.');
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
 
-        movies.push(movie);
-    }
-
-    res.status(200).send(movies);
+    res.status(200).send();
 });
 
 router.get('/watchlist', auth, async (req, res) => {
@@ -324,6 +255,38 @@ router.get('/watchlist', auth, async (req, res) => {
     res.status(200).send(movies);
 });
 
+router.put('/watchlist', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            watchlist: req.body.id,
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.delete('/watchlist', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            watchlist: req.body.id,
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    res.status(200).send();
+});
+
 router.get('/rate', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findById(id);
@@ -347,6 +310,70 @@ router.get('/rate', auth, async (req, res) => {
     }
 
     res.status(200).send(movies);
+});
+
+router.put('/rate', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $push: {
+            ratings: {
+                movie: req.body.id,
+                rating: req.body.rating,
+            },
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    const movie = await Movie.findByIdAndUpdate(req.body.id, {
+        $push: {
+            ratings: {
+                id: id,
+                rating: req.body.rating,
+            },
+        },
+    });
+
+    if (!movie)
+        return res
+            .status(404)
+            .send('The movie with the given ID was not found.');
+
+    res.status(200).send();
+});
+
+router.delete('/rate', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findByIdAndUpdate(id, {
+        $pull: {
+            ratings: {
+                movie: req.body.id,
+            },
+        },
+    });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    const movie = await Movie.findByIdAndUpdate(req.body.id, {
+        $pull: {
+            ratings: {
+                id: id,
+            },
+        },
+    });
+
+    if (!movie)
+        return res
+            .status(404)
+            .send('The movie with the given ID was not found.');
+
+    res.status(200).send();
 });
 
 module.exports = router;
