@@ -71,8 +71,8 @@ router.delete('/:id', async (req, res) => {
     res.status(200).send();
 });
 
-router.get('/avgRating', async (req, res) => {
-    const movie = await Movie.findById(req.body.id);
+router.get('/avgRating/:id', async (req, res) => {
+    const movie = await Movie.findById(req.params.id);
 
     if (!movie)
         return res
