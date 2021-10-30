@@ -71,4 +71,24 @@ router.delete('/:id', async (req, res) => {
     res.status(200).send();
 });
 
+router.get('/avgRating', async (req, res) => {
+    const movie = await Movie.findById(req.body.id);
+
+    if (!movie)
+        return res
+            .status(404)
+            .send('The movie with the given ID was not found.');
+
+    const ratings = [];
+
+    for (const rating of movie.ratings) {
+        ratings.push(rating.rating);
+    }
+
+    let avg = ratings.reduce((a, b) => a + b) / ratings.length;
+    avg = Math.round(avg * 10) / 10;
+
+    res.status(200).send(JSON.stringify(avg));
+});
+
 module.exports = router;
