@@ -261,14 +261,14 @@ router.get('/seen', auth, async (req, res) => {
     const movies = [];
 
     for (const id of user.seen) {
-        let m = await Movie.findById(id);
+        let movie = await Movie.findById(id);
 
-        if (!m)
+        if (!movie)
             return res
                 .status(404)
                 .send('The movie with the given ID was not found.');
 
-        movies.push(m);
+        movies.push(movie);
     }
 
     res.status(200).send(movies);
@@ -286,14 +286,14 @@ router.get('/favorites', auth, async (req, res) => {
     const movies = [];
 
     for (const id of user.favorites) {
-        let m = await Movie.findById(id);
+        let movie = await Movie.findById(id);
 
-        if (!m)
+        if (!movie)
             return res
                 .status(404)
                 .send('The movie with the given ID was not found.');
 
-        movies.push(m);
+        movies.push(movie);
     }
 
     res.status(200).send(movies);
@@ -311,14 +311,39 @@ router.get('/watchlist', auth, async (req, res) => {
     const movies = [];
 
     for (const id of user.watchlist) {
-        let m = await Movie.findById(id);
+        let movie = await Movie.findById(id);
 
-        if (!m)
+        if (!movie)
             return res
                 .status(404)
                 .send('The movie with the given ID was not found.');
 
-        movies.push(m);
+        movies.push(movie);
+    }
+
+    res.status(200).send(movies);
+});
+
+router.get('/rate', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    const movies = [];
+
+    for (const rating of user.ratings) {
+        let movie = await Movie.findById(rating.movie);
+
+        if (!movie)
+            return res
+                .status(404)
+                .send('The movie with the given ID was not found.');
+
+        movies.push(movie);
     }
 
     res.status(200).send(movies);
