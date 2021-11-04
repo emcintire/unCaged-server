@@ -415,11 +415,13 @@ router.post('/forgotPassword', async (req, res) => {
             'If you did not request this please ignore this email. </p>',
     });
 
-    return res.sendStatus(200);
+    const token = user.generateAuthToken();
+    res.send(token);
 });
 
 router.post('/checkCode', async (req, res) => {
-    const user = await User.findOne({ email: req.body.email });
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
 
     if (!user)
         return res
