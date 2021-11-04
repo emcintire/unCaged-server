@@ -397,7 +397,7 @@ router.post('/forgotPassword', async (req, res) => {
     await user.save();
 
     const smtp = nodemailer.createTransport({
-        host: 'smtp-relay.sendinblue.com',
+        host: 'email-smtp.us-east-2.amazonaws.com',
         port: 587,
         auth: {
             user: process.env.EMAIL_USERNAME,
