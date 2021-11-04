@@ -105,7 +105,7 @@ router.post('/login', async (req, res) => {
     res.send(token);
 });
 
-router.delete('/', admin, async (req, res) => {
+router.delete('/', auth, async (req, res) => {
     //Deletes the user with the given id
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findByIdAndRemove(id);
