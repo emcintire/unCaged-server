@@ -172,6 +172,7 @@
         "negotiator": "^0.6.2",
         "node-addon-api": "^3.2.1",
         "node-fetch": "^2.6.5",
+        "nodemailer": "^6.7.0",
         "nodemon": "^2.0.14",
         "nopt": "^1.0.10",
         "normalize-path": "^3.0.0",

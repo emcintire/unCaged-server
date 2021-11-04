@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const _ = require('lodash');
+const nodemailer = require('nodemailer');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const {
@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
-        img: 'https://i.imgur.com/9NYgErPm.png',
+        img: 'https://i.imgur.com/9NYgErP.png',
     });
     const salt = await bcrypt.genSalt(10); //Hash the password
     user.password = await bcrypt.hash(user.password, salt);
@@ -70,11 +70,13 @@ router.put('/changePassword', auth, async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(400).send('User not found');
 
-    const validPassword = await bcrypt.compare(
-        req.body.currentPassword,
-        user.password
-    );
-    if (!validPassword) return res.status(400).send('Invalid password');
+    if (req.body.currentPassword) {
+        const validPassword = await bcrypt.compare(
+            req.body.currentPassword,
+            user.password
+        );
+        if (!validPassword) return res.status(400).send('Invalid password');
+    }
 
     const salt = await bcrypt.genSalt(10); //Hash the password
     const newPassword = await bcrypt.hash(req.body.password, salt);
@@ -374,6 +376,64 @@ router.delete('/rate', auth, async (req, res) => {
             .send('The movie with the given ID was not found.');
 
     res.status(200).send();
+});
+
+router.post('/forgotPassword', async (req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given email was not found.');
+
+    const code = Math.random()
+        .toString(36)
+        .replace(/[^a-z]+/g, '')
+        .substr(0, 9)
+        .toUpperCase();
+
+    const salt = await bcrypt.genSalt(10); //Hash the code
+    user.resetCode = await bcrypt.hash(code, salt);
+    await user.save();
+
+    const smtp = nodemailer.createTransport({
+        host: 'smtp-relay.sendinblue.com',
+        port: 587,
+        auth: {
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
+    smtp.sendMail({
+        from: 'uncaged.app@gmail.com',
+        to: 'everettgmcintire@gmail.com',
+        subject: 'Password Reset',
+        html:
+            '<p>You are receiving this email in response to a password reset request for your unCaged account.' +
+            `<br/> Please paste the following code into the input box on the app: <br/><br/> ${code}<br/><br/>` +
+            'If you did not request this please ignore this email. </p>',
+    });
+
+    return res.sendStatus(200);
+});
+
+router.post('/checkCode', async (req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given email was not found.');
+
+    const validCode = await bcrypt.compare(req.body.code, user.resetCode);
+
+    if (!validCode) return res.status(400).send('Invalid Code');
+    else {
+        user.resetCode = '';
+        await user.save();
+        return res.sendStatus(200);
+    }
 });
 
 module.exports = router;

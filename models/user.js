@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 1024,
     },
+    resetCode: {
+        type: String,
+        default: '',
+        maxlength: 100,
+    },
     img: {
         type: String,
         default: '',
