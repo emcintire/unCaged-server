@@ -407,7 +407,7 @@ router.post('/forgotPassword', async (req, res) => {
 
     smtp.sendMail({
         from: 'uncaged.app@gmail.com',
-        to: 'everettgmcintire@gmail.com',
+        to: req.body.email,
         subject: 'Password Reset',
         html:
             '<p>You are receiving this email in response to a password reset request for your unCaged account.' +
