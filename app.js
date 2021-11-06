@@ -45,6 +45,10 @@ app.get('/privacy', function (request, response) {
     response.sendFile(__dirname + '/public/privacy.html');
 });
 
+app.get('/support', function (request, response) {
+    response.sendFile(__dirname + '/public/support.html');
+});
+
 const port = process.env.PORT || 5000;
 const server = app.listen(port, () => console.log(`Connected to server`));
 
