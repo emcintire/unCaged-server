@@ -19,6 +19,14 @@ router.get('/findByID/:id', async (req, res) => {
     res.status(200).send(movie);
 });
 
+router.get('/findByTitle/:title', async (req, res) => {
+    const movie = await Movie.find({
+        title: { $regex: req.params.title, $options: 'i' },
+    });
+
+    res.status(200).send(movie);
+});
+
 router.post('/', async (req, res) => {
     //Creates a movie with the properties: title, director, description, date, img
     const { error } = movieSchema.validate(req.body);
@@ -96,7 +104,7 @@ router.get('/avgRating/:id', async (req, res) => {
 });
 
 router.get('/quote', async (req, res) => {
-    const quote = 'I never disrobe before gunplay.';
+    const quote = '"I never disrobe before gunplay."';
     const subquote = "-John Miltion, 'Drive Angry'";
 
     const obj = { quote, subquote };
