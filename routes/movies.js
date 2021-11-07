@@ -95,4 +95,13 @@ router.get('/avgRating/:id', async (req, res) => {
     }
 });
 
+router.get('/quote', async (req, res) => {
+    const quote = 'I never disrobe before gunplay.';
+    const subquote = "-John Miltion, 'Drive Angry'";
+
+    const obj = { quote, subquote };
+
+    res.status(200).send(obj);
+});
+
 module.exports = router;
