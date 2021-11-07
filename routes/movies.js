@@ -3,7 +3,7 @@ const router = express.Router();
 const { Movie, movieSchema } = require('../models/movie');
 
 router.get('/', async (req, res) => {
-    const movies = await Movie.find().sort('director');
+    const movies = await Movie.find().sort('description');
 
     res.status(200).send(movies);
 });
