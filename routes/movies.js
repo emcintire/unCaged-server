@@ -136,7 +136,7 @@ router.get('/avgRating/:id', async (req, res) => {
     }
 });
 
-router.get('/sortByRating', async (req, res) => {
+router.get('/updateRatings', async (req, res) => {
     const movies = await Movie.find();
 
     for (const movie of movies) {
