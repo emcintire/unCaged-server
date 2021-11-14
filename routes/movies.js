@@ -3,6 +3,12 @@ const router = express.Router();
 const { Movie, movieSchema } = require('../models/movie');
 const fetch = require('node-fetch');
 
+router.get('/', async (req, res) => {
+    const movies = await Movie.find().sort('director');
+
+    res.status(200).send(movies);
+});
+
 router.post('/getMovies', async (req, res) => {
     if (req.body.category) {
         const movies = await Movie.find().sort({
