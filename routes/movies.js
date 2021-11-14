@@ -9,7 +9,7 @@ router.post('/getMovies', async (req, res) => {
             [req.body.category]: req.body.direction,
         });
 
-        res.status(200).send(movies);
+        return res.status(200).send(movies);
     }
 
     const movies = await Movie.find().sort('director');
@@ -28,7 +28,17 @@ router.get('/findByID/:id', async (req, res) => {
     res.status(200).send(movie);
 });
 
-router.get('/findByTitle/:title', async (req, res) => {
+router.post('/findByTitle/:title', async (req, res) => {
+    if (req.body.category) {
+        const movies = await Movie.find({
+            title: { $regex: req.params.title, $options: 'i' },
+        }).sort({
+            [req.body.category]: req.body.direction,
+        });
+
+        return res.status(200).send(movies);
+    }
+
     const movie = await Movie.find({
         title: { $regex: req.params.title, $options: 'i' },
     });
