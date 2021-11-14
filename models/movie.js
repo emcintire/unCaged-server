@@ -42,6 +42,10 @@ const movieSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    avgRating: {
+        type: Number,
+        max: 10,
+    },
     ratings: [
         {
             id: String,

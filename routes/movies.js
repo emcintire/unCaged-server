@@ -1,8 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { Movie, movieSchema } = require('../models/movie');
+const fetch = require('node-fetch');
 
-router.get('/', async (req, res) => {
+router.post('/getMovies', async (req, res) => {
+    if (req.body.category) {
+        const movies = await Movie.find().sort({
+            [req.body.category]: req.body.direction,
+        });
+
+        res.status(200).send(movies);
+    }
+
     const movies = await Movie.find().sort('director');
 
     res.status(200).send(movies);
@@ -20,12 +29,6 @@ router.get('/findByID/:id', async (req, res) => {
 });
 
 router.get('/findByTitle/:title', async (req, res) => {
-    if (req.params.title === 'null') {
-        const movies = await Movie.find();
-
-        return res.status(200).send(movies);
-    }
-
     const movie = await Movie.find({
         title: { $regex: req.params.title, $options: 'i' },
     });
@@ -107,6 +110,30 @@ router.get('/avgRating/:id', async (req, res) => {
 
         res.status(200).send(JSON.stringify(avg));
     }
+});
+
+router.get('/sortByRating', async (req, res) => {
+    const movies = await Movie.find();
+
+    for (const movie of movies) {
+        let response = await fetch(
+            'https://uncaged-server.herokuapp.com/api/movies/avgRating/' +
+                movie._id,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        const body = await response.text();
+        movie.avgRating = body;
+
+        await movie.save();
+    }
+
+    res.sendStatus(200);
 });
 
 router.get('/quote', async (req, res) => {
