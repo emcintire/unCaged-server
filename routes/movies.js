@@ -34,17 +34,25 @@ router.get('/findByID/:id', async (req, res) => {
     res.status(200).send(movie);
 });
 
-router.post('/findByTitle/:title', async (req, res) => {
-    if (req.body.category) {
+router.post('/findByTitle', async (req, res) => {
+    if (req.body.title) {
         const movies = await Movie.find({
-            title: { $regex: req.params.title, $options: 'i' },
+            title: { $regex: req.body.title, $options: 'i' },
         }).sort({
             [req.body.category]: req.body.direction,
         });
 
         return res.status(200).send(movies);
-    }
+    } else {
+        const movies = await Movie.find().sort({
+            [req.body.category]: req.body.direction,
+        });
 
+        return res.status(200).send(movies);
+    }
+});
+
+router.get('/findByTitle/:title', async (req, res) => {
     const movie = await Movie.find({
         title: { $regex: req.params.title, $options: 'i' },
     });
