@@ -20,6 +20,12 @@ router.get('/findByID/:id', async (req, res) => {
 });
 
 router.get('/findByTitle/:title', async (req, res) => {
+    if (req.params.title === 'null') {
+        const movies = await Movie.find();
+
+        return res.status(200).send(movies);
+    }
+
     const movie = await Movie.find({
         title: { $regex: req.params.title, $options: 'i' },
     });
@@ -106,6 +112,12 @@ router.get('/avgRating/:id', async (req, res) => {
 router.get('/quote', async (req, res) => {
     const quote = '"I never disrobe before gunplay."';
     const subquote = "-John Miltion, 'Drive Angry'";
+
+    const initialDate = new Date(2021, 11, 7);
+    const now = new Date();
+    const difference = now - initialDate;
+    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+    const daysSince = Math.floor(difference / millisecondsPerDay);
 
     const obj = { quote, subquote };
 
