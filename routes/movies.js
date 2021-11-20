@@ -141,8 +141,7 @@ router.get('/updateRatings', async (req, res) => {
 
     for (const movie of movies) {
         let response = await fetch(
-            'https://uncaged-server.herokuapp.com/api/movies/avgRating/' +
-                movie._id,
+            process.env.SERVER_URL + '/movies/avgRating/' + movie._id,
             {
                 method: 'GET',
                 headers: {
