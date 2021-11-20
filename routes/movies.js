@@ -160,16 +160,65 @@ router.get('/updateRatings', async (req, res) => {
 });
 
 router.get('/quote', async (req, res) => {
-    const quote = '"I never disrobe before gunplay."';
-    const subquote = "-John Miltion, 'Drive Angry'";
+    const quotes = [
+        {
+            quote: '"I never disrobe before gunplay."',
+            subquote: "-John Miltion, 'Drive Angry'",
+        },
+        {
+            quote: `"Cause I was made for this sewer baby and I am the king."`,
+            subquote: `-Rick Santoro, 'Snake Eyes'.`,
+        },
+        {
+            quote: `"What's in the bag? A shark or something?"`,
+            subquote: `-Edward Malus, 'The Wicker Man'.`,
+        },
+        {
+            quote: `"Put the bunny back in the box."`,
+            subquote: `-Cameron Poe, 'Con Air'.`,
+        },
+        {
+            quote: `"Shoot him again... His soul's still dancing."`,
+            subquote: `-Terence McDonagh, 'Bad Lieutenant: Port Of Call'`,
+        },
+        {
+            quote: `"I did a bare 360 triple backflip in front of twenty-two thousand people. It's kind of funny, it's on YouTube, check it out"`,
+            subquote: `-Johnny Blaze, 'Ghost Rider: Spirit Of Vengeance'`,
+        },
+        {
+            quote: `"I just stole fifty cars in one night! I'm a little tired, little wired, and I think I deserve a little appreciation!"`,
+            subquote: `-Randall 'Memphis' Raines, 'Gone In Sixty Seconds'`,
+        },
+        {
+            quote: `"Bangers and mash! Bubbles and squeak! Smoked eel pie! Haggis!"`,
+            subquote: `-Ben Gates, 'National Treasure 2: Book Of Secrets'`,
+        },
+        {
+            quote: `"Honey? Uh... You wanna know who really killed JFK?"`,
+            subquote: `-Stanley Godspeed, 'Rock'`,
+        },
+        {
+            quote: `"You'll be seeing a lot of changes around here. Papa's got a brand new bag."`,
+            subquote: `-Castor Troy, 'Face/Off'`,
+        },
+        {
+            quote: `"I'll be taking these Huggies and whatever cash ya got."`,
+            subquote: `-H.I., 'Raising Arizona'.`,
+        },
+        {
+            quote: `"People don't throw things at me anymore. Maybe because I carry a bow around."`,
+            subquote: `-David Spritz, 'The Weather Man'.`,
+        },
+    ];
 
-    const initialDate = new Date(2021, 11, 7);
-    const now = new Date();
-    const difference = now - initialDate;
-    const millisecondsPerDay = 24 * 60 * 60 * 1000;
-    const daysSince = Math.floor(difference / millisecondsPerDay);
+    const oneWeek = 24 * 60 * 60 * 1000 * 7;
+    const firstDate = new Date(2021, 10, 14);
+    const secondDate = new Date();
+    const diffWeek = Math.floor(Math.abs((firstDate - secondDate) / oneWeek));
 
-    const obj = { quote, subquote };
+    let index = diffWeek % quotes.length;
+
+    const obj = quotes[index];
 
     res.status(200).send(obj);
 });
