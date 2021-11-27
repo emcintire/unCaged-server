@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Movie, movieSchema } = require('../models/movie');
 const fetch = require('node-fetch');
+const admin = require('../middleware/admin');
 
 router.get('/', async (req, res) => {
     const movies = await Movie.find().sort('director');
@@ -60,7 +61,7 @@ router.get('/findByTitle/:title', async (req, res) => {
     res.status(200).send(movie);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', admin, async (req, res) => {
     //Creates a movie with the properties: title, director, description, date, img
     const { error } = movieSchema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -84,7 +85,7 @@ router.post('/', async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', admin, async (req, res) => {
     //Updates movie with given id
     const { error } = movieSchema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -96,17 +97,6 @@ router.put('/:id', async (req, res) => {
     if (!movie)
         return res
             .status(400)
-            .send('The movie with the given ID was not found.');
-
-    res.status(200).send();
-});
-
-router.delete('/:id', async (req, res) => {
-    const movie = await Movie.findByIdAndRemove(req.params.id);
-
-    if (!movie)
-        return res
-            .status(404)
             .send('The movie with the given ID was not found.');
 
     res.status(200).send();
@@ -170,12 +160,12 @@ router.get('/quote', async (req, res) => {
             subquote: `-Rick Santoro, 'Snake Eyes'.`,
         },
         {
-            quote: `"What's in the bag? A shark or something?"`,
-            subquote: `-Edward Malus, 'The Wicker Man'.`,
-        },
-        {
             quote: `"Put the bunny back in the box."`,
             subquote: `-Cameron Poe, 'Con Air'.`,
+        },
+        {
+            quote: `"What's in the bag? A shark or something?"`,
+            subquote: `-Edward Malus, 'The Wicker Man'.`,
         },
         {
             quote: `"Shoot him again... His soul's still dancing."`,
