@@ -175,6 +175,27 @@ router.delete('/favorites', auth, async (req, res) => {
     res.status(200).send();
 });
 
+router.get('/unseen', auth, async (req, res) => {
+    const id = getIdFromToken(req.header('x-auth-token'));
+    const user = await User.findById(id);
+
+    if (!user)
+        return res
+            .status(404)
+            .send('The user with the given ID was not found.');
+
+    const unSeen = [];
+    const movies = await Movie.find();
+
+    for (const movie of movies) {
+        if (!user.seen.includes(movie._id)) {
+            unSeen.push(movie);
+        }
+    }
+
+    res.status(200).send(unSeen);
+});
+
 router.get('/seen', auth, async (req, res) => {
     const id = getIdFromToken(req.header('x-auth-token'));
     const user = await User.findById(id);
