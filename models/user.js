@@ -8,6 +8,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    createdOn: {
+        type: Date,
+        default: new Date(),
+    },
     name: {
         type: String,
         required: true,
