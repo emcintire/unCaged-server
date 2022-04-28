@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { Movie, movieSchema } = require('../models/movie');
+const { Quote, quoteSchema } = require('../models/quote');
 const fetch = require('node-fetch');
 const admin = require('../middleware/admin');
+const auth = require('../middleware/auth');
 
 router.get('/', async (req, res) => {
     const movies = await Movie.find().sort('director');
@@ -61,7 +63,7 @@ router.get('/findByTitle/:title', async (req, res) => {
     res.status(200).send(movie);
 });
 
-router.post('/', admin, async (req, res) => {
+router.post('/', [auth, admin], async (req, res) => {
     //Creates a movie with the properties: title, director, description, date, img
     const { error } = movieSchema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -85,7 +87,7 @@ router.post('/', admin, async (req, res) => {
     res.status(200).send();
 });
 
-router.put('/:id', admin, async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
     //Updates movie with given id
     const { error } = movieSchema.validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -150,6 +152,14 @@ router.get('/updateRatings', async (req, res) => {
 });
 
 router.get('/quote', async (req, res) => {
+    const quote = await Quote.find({
+        createdOn: {
+            $gte: new Date(new Date() - 7 * 60 * 60 * 24 * 1000)
+        }
+    });
+
+    if (quote && quote.length > 0) res.status(200).send(quote);
+
     const quotes = [
         {
             quote: '"I never disrobe before gunplay."',
@@ -211,6 +221,19 @@ router.get('/quote', async (req, res) => {
     const obj = quotes[index];
 
     res.status(200).send(obj);
+});
+
+router.post('/quote', [auth, admin], async (req, res) => {
+    const { error } = quoteSchema.validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+    
+    const quote = new Quote({
+        quote: req.body.quote,
+        subquote: req.body.subquote,
+    });
+
+    await quote.save();
+    res.status(200).send();
 });
 
 module.exports = router;
