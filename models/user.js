@@ -63,7 +63,7 @@ const schema = Joi.object({
     email: Joi.string().min(1).max(100).required().email(),
     password: Joi.string()
         .pattern(
-            /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
+            /^.*(?=.{8,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
         )
         .required(),
 });
@@ -72,7 +72,7 @@ const loginSchema = Joi.object({
     email: Joi.string().min(1).max(100).required().email(),
     password: Joi.string()
         .pattern(
-            /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
+            /^.*(?=.{8,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
         )
         .required(),
 });
@@ -82,10 +82,10 @@ const updateSchema = Joi.object({
     email: Joi.string().email().min(1).max(100),
     img: Joi.string().min(1).max(100),
     password: Joi.string().pattern(
-        /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
+        /^.*(?=.{8,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
     ),
     currentPassword: Joi.string().pattern(
-        /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
+        /^.*(?=.{8,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
     ),
 });
 
