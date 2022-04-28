@@ -156,9 +156,9 @@ router.get('/quote', async (req, res) => {
         createdOn: {
             $gte: new Date(new Date() - 7 * 60 * 60 * 24 * 1000)
         }
-    });
+    }).sort({ createdOn: -1}).limit(1);
 
-    if (quote && quote.length > 0) res.status(200).send(quote);
+    if (quote && quote.length > 0) return res.status(200).send(quote);
 
     const quotes = [
         {
