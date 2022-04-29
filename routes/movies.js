@@ -233,7 +233,7 @@ router.post('/quote', [auth, admin], async (req, res) => {
     });
 
     await quote.save();
-    res.status(200).send();
+    res.status(200).send(quote);
 });
 
 module.exports = router;
