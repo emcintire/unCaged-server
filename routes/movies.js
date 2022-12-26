@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { Movie, movieSchema } = require('../models/movie');
 const { Quote, quoteSchema } = require('../models/quote');
-const fetch = require('node-fetch');
 const admin = require('../middleware/admin');
 const auth = require('../middleware/auth');
 
