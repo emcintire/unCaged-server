@@ -1,20 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const auth = require('../middleware/auth');
-const admin = require('../middleware/admin');
-const {
-  User,
-  schema,
-  loginSchema,
-  getIdFromToken,
-  updateSchema,
-} = require('../models/user');
-const { Movie, movieSchema } = require('../models/movie');
+import express, { Response } from 'express';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import { auth } from '../middleware';
+import { Movie, User } from '../models';
+import { newUserSchema, loginSchema, updateUserSchema } from '../schemas';
+import type { AuthRequest } from '../types';
+import { getIdFromToken } from '../util';
 
-router.get('/', async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+export const userRouter = express.Router();
+
+userRouter.get('/', async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -25,10 +24,11 @@ router.get('/', async (req, res) => {
   res.status(200).send(user);
 });
 
-router.post('/', async (req, res) => {
-  //Creates a user with the properties: name, email, password
-  const { error } = schema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+userRouter.post('/', async (req: express.Request, res: Response) => {
+  const validation = newUserSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).send(validation.error.issues[0].message);
+  }
 
   let user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send('User already registered');
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
     password: req.body.password,
     img: 'https://i.imgur.com/9NYgErP.png',
   });
-  const salt = await bcrypt.genSalt(10); //Hash the password
+  const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
@@ -47,11 +47,16 @@ router.post('/', async (req, res) => {
   res.send(token);
 });
 
-router.put('/', auth, async (req, res) => {
-  const { error } = updateSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+userRouter.put('/', auth, async (req: AuthRequest, res: Response) => {
+  const validation = updateUserSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).send(validation.error.issues[0].message);
+  }
 
-  const id = getIdFromToken(req.header('x-auth-token'));
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
   if (!user) return res.status(400).send('User not found');
 
@@ -62,11 +67,16 @@ router.put('/', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.put('/changePassword', auth, async (req, res) => {
-  const { error } = updateSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+userRouter.put('/changePassword', auth, async (req: AuthRequest, res: Response) => {
+  const validation = updateUserSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).send(validation.error.issues[0].message);
+  }
 
-  const id = getIdFromToken(req.header('x-auth-token'));
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
   if (!user) return res.status(400).send('User not found');
 
@@ -78,7 +88,7 @@ router.put('/changePassword', auth, async (req, res) => {
     if (!validPassword) return res.status(400).send('Invalid password');
   }
 
-  const salt = await bcrypt.genSalt(10); //Hash the password
+  const salt = await bcrypt.genSalt(10);
   const newPassword = await bcrypt.hash(req.body.password, salt);
 
   user.password = newPassword;
@@ -87,9 +97,11 @@ router.put('/changePassword', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.post('/login', async (req, res) => {
-  const { error } = loginSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+userRouter.post('/login', async (req: express.Request, res: Response) => {
+  const validation = loginSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).send(validation.error.issues[0].message);
+  }
 
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send('Invalid email or password');
@@ -105,9 +117,11 @@ router.post('/login', async (req, res) => {
   res.send(token);
 });
 
-router.delete('/', auth, async (req, res) => {
-  //Deletes the user with the given id
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.delete('/', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndRemove(id);
 
   if (!user)
@@ -118,8 +132,11 @@ router.delete('/', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.get('/favorites', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.get('/favorites', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -129,8 +146,8 @@ router.get('/favorites', auth, async (req, res) => {
 
   const movies = [];
 
-  for (const id of user.favorites) {
-    let movie = await Movie.findById(id);
+  for (const movieId of user.favorites) {
+    const movie = await Movie.findById(movieId);
 
     if (!movie)
       return res
@@ -143,8 +160,11 @@ router.get('/favorites', auth, async (req, res) => {
   res.status(200).send(movies);
 });
 
-router.put('/favorites', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.put('/favorites', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $push: {
       favorites: req.body.id,
@@ -159,8 +179,11 @@ router.put('/favorites', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.delete('/favorites', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.delete('/favorites', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $pull: {
       favorites: req.body.id,
@@ -175,8 +198,11 @@ router.delete('/favorites', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.get('/unseen', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.get('/unseen', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -188,7 +214,7 @@ router.get('/unseen', auth, async (req, res) => {
   const movies = await Movie.find();
 
   for (const movie of movies) {
-    if (!user.seen.includes(movie._id)) {
+    if (!user.seen.includes(movie._id.toString())) {
       unSeen.push(movie);
     }
   }
@@ -196,8 +222,11 @@ router.get('/unseen', auth, async (req, res) => {
   res.status(200).send(unSeen);
 });
 
-router.get('/seen', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.get('/seen', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -207,8 +236,8 @@ router.get('/seen', auth, async (req, res) => {
 
   const movies = [];
 
-  for (const id of user.seen) {
-    let movie = await Movie.findById(id);
+  for (const movieId of user.seen) {
+    const movie = await Movie.findById(movieId);
 
     if (!movie)
       return res
@@ -221,8 +250,11 @@ router.get('/seen', auth, async (req, res) => {
   res.status(200).send(movies);
 });
 
-router.put('/seen', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.put('/seen', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $push: {
       seen: req.body.id,
@@ -237,8 +269,11 @@ router.put('/seen', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.delete('/seen', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.delete('/seen', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $pull: {
       seen: req.body.id,
@@ -253,8 +288,11 @@ router.delete('/seen', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.get('/watchlist', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.get('/watchlist', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -264,8 +302,8 @@ router.get('/watchlist', auth, async (req, res) => {
 
   const movies = [];
 
-  for (const id of user.watchlist) {
-    let movie = await Movie.findById(id);
+  for (const movieId of user.watchlist) {
+    const movie = await Movie.findById(movieId);
 
     if (!movie)
       return res
@@ -278,8 +316,11 @@ router.get('/watchlist', auth, async (req, res) => {
   res.status(200).send(movies);
 });
 
-router.put('/watchlist', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.put('/watchlist', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $push: {
       watchlist: req.body.id,
@@ -294,8 +335,11 @@ router.put('/watchlist', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.delete('/watchlist', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.delete('/watchlist', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $pull: {
       watchlist: req.body.id,
@@ -310,8 +354,11 @@ router.delete('/watchlist', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.get('/rate', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.get('/rate', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -322,7 +369,7 @@ router.get('/rate', auth, async (req, res) => {
   const movies = [];
 
   for (const rating of user.ratings) {
-    let movie = await Movie.findById(rating.movie);
+    const movie = await Movie.findById(rating.movie);
 
     if (!movie)
       return res
@@ -335,8 +382,11 @@ router.get('/rate', auth, async (req, res) => {
   res.status(200).send(movies);
 });
 
-router.put('/rate', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.put('/rate', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $push: {
       ratings: {
@@ -368,8 +418,11 @@ router.put('/rate', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.delete('/rate', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.delete('/rate', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findByIdAndUpdate(id, {
     $pull: {
       ratings: {
@@ -399,7 +452,7 @@ router.delete('/rate', auth, async (req, res) => {
   res.status(200).send();
 });
 
-router.post('/forgotPassword', async (req, res) => {
+userRouter.post('/forgotPassword', async (req: express.Request, res: Response) => {
   const user = await User.findOne({ email: req.body.email });
 
   if (!user)
@@ -413,7 +466,7 @@ router.post('/forgotPassword', async (req, res) => {
     .substr(0, 9)
     .toUpperCase();
 
-  const salt = await bcrypt.genSalt(10); //Hash the code
+  const salt = await bcrypt.genSalt(10);
   user.resetCode = await bcrypt.hash(code, salt);
   await user.save();
 
@@ -440,8 +493,11 @@ router.post('/forgotPassword', async (req, res) => {
   res.send(token);
 });
 
-router.post('/checkCode', async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.post('/checkCode', async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user)
@@ -459,8 +515,11 @@ router.post('/checkCode', async (req, res) => {
   }
 });
 
-router.post('/filteredMovies', auth, async (req, res) => {
-  const id = getIdFromToken(req.header('x-auth-token'));
+userRouter.post('/filteredMovies', auth, async (req: AuthRequest, res: Response) => {
+  const token = req.header('x-auth-token');
+  if (!token) return res.status(401).send('No token provided');
+  
+  const id = getIdFromToken(token);
   const user = await User.findById(id);
 
   if (!user) return res.status(404).send('The user with the given ID was not found.');
@@ -482,4 +541,4 @@ router.post('/filteredMovies', auth, async (req, res) => {
   res.status(200).send(movies);
 });
 
-module.exports = router;
+export default userRouter;

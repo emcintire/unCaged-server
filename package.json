@@ -2,7 +2,7 @@
     "name": "server",
     "version": "1.2.0",
     "description": "",
-    "main": "app.js",
+    "main": "dist/app.js",
     "engines": {
         "node": "v16.16.0"
     },
@@ -125,8 +125,6 @@
         "is-yarn-global": "^0.4.1",
         "isarray": "^2.0.5",
         "jade": "^0.31.2",
-        "joi": "^17.7.0",
-        "joi-objectid": "^4.0.2",
         "json-buffer": "^3.0.1",
         "json5": "^2.2.2",
         "jsonwebtoken": "^9.0.0",
@@ -262,12 +260,26 @@
         "wrappy": "^1.0.2",
         "write-file-atomic": "^5.0.0",
         "xdg-basedir": "^5.1.0",
-        "yallist": "^4.0.0"
+        "yallist": "^4.0.0",
+        "zod": "^4.1.12"
     },
     "scripts": {
-        "start": "node app.js",
+        "start": "node dist/app.js",
+        "dev": "nodemon --exec ts-node src/app.ts",
+        "build": "tsc",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "@types/bcrypt": "^6.0.0",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.5",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/morgan": "^1.9.10",
+        "@types/node": "^24.10.0",
+        "@types/nodemailer": "^7.0.3",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
+    }
 }
