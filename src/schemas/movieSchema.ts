@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { movieRatingSchema } from './movieRatingSchema';
-import { Document } from 'mongoose';
+import type { Document } from 'mongoose';
 
 export const movieSchema = z.object({
   avgRating: z.number().min(0).max(10).optional(),

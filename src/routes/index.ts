@@ -1,2 +1,2 @@
-export { userRouter } from './users';
-export { movieRouter } from './movies';
+export { userRouter } from './userRouter';
+export { movieRouter } from './movieRouter';

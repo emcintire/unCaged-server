@@ -57,12 +57,12 @@ userRouter.put('/', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findById(id);
-  if (!user) return res.status(400).send('User not found');
+  const user = await User.findByIdAndUpdate(
+    id,
+    { $set: req.body }
+  );
 
-  await User.findByIdAndUpdate(id, {
-    $set: req.body,
-  });
+  if (!user) return res.status(400).send('User not found');
 
   res.status(200).send();
 });
@@ -122,7 +122,7 @@ userRouter.delete('/', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndRemove(id);
+  const user = await User.findByIdAndDelete(id);
 
   if (!user)
     return res
@@ -144,18 +144,7 @@ userRouter.get('/favorites', auth, async (req: AuthRequest, res: Response) => {
       .status(404)
       .send('The user with the given ID was not found.');
 
-  const movies = [];
-
-  for (const movieId of user.favorites) {
-    const movie = await Movie.findById(movieId);
-
-    if (!movie)
-      return res
-        .status(404)
-        .send('The movie with the given ID was not found.');
-
-    movies.push(movie);
-  }
+  const movies = await Movie.find({ _id: { $in: user.favorites } });
 
   res.status(200).send(movies);
 });
@@ -165,11 +154,14 @@ userRouter.put('/favorites', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $push: {
-      favorites: req.body.id,
-    },
-  });
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        favorites: req.body.id,
+      },
+    }
+  );
 
   if (!user)
     return res
@@ -184,11 +176,14 @@ userRouter.delete('/favorites', auth, async (req: AuthRequest, res: Response) =>
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $pull: {
-      favorites: req.body.id,
-    },
-  });
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $pull: {
+        favorites: req.body.id,
+      },
+    }
+  );
 
   if (!user)
     return res
@@ -234,18 +229,7 @@ userRouter.get('/seen', auth, async (req: AuthRequest, res: Response) => {
       .status(404)
       .send('The user with the given ID was not found.');
 
-  const movies = [];
-
-  for (const movieId of user.seen) {
-    const movie = await Movie.findById(movieId);
-
-    if (!movie)
-      return res
-        .status(404)
-        .send('The movie with the given ID was not found.');
-
-    movies.push(movie);
-  }
+  const movies = await Movie.find({ _id: { $in: user.seen } });
 
   res.status(200).send(movies);
 });
@@ -255,11 +239,14 @@ userRouter.put('/seen', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $push: {
-      seen: req.body.id,
-    },
-  });
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        seen: req.body.id,
+      },
+    }
+  );
 
   if (!user)
     return res
@@ -274,11 +261,14 @@ userRouter.delete('/seen', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $pull: {
-      seen: req.body.id,
-    },
-  });
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $pull: {
+        seen: req.body.id,
+      },
+    }
+  );
 
   if (!user)
     return res
@@ -300,18 +290,7 @@ userRouter.get('/watchlist', auth, async (req: AuthRequest, res: Response) => {
       .status(404)
       .send('The user with the given ID was not found.');
 
-  const movies = [];
-
-  for (const movieId of user.watchlist) {
-    const movie = await Movie.findById(movieId);
-
-    if (!movie)
-      return res
-        .status(404)
-        .send('The movie with the given ID was not found.');
-
-    movies.push(movie);
-  }
+  const movies = await Movie.find({ _id: { $in: user.watchlist } });
 
   res.status(200).send(movies);
 });
@@ -321,11 +300,14 @@ userRouter.put('/watchlist', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $push: {
-      watchlist: req.body.id,
-    },
-  });
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        watchlist: req.body.id,
+      },
+    }
+  );
 
   if (!user)
     return res
@@ -340,11 +322,14 @@ userRouter.delete('/watchlist', auth, async (req: AuthRequest, res: Response) =>
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $pull: {
-      watchlist: req.body.id,
-    },
-  });
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $pull: {
+        watchlist: req.body.id,
+      },
+    }
+  );
 
   if (!user)
     return res
@@ -366,18 +351,8 @@ userRouter.get('/rate', auth, async (req: AuthRequest, res: Response) => {
       .status(404)
       .send('The user with the given ID was not found.');
 
-  const movies = [];
-
-  for (const rating of user.ratings) {
-    const movie = await Movie.findById(rating.movie);
-
-    if (!movie)
-      return res
-        .status(404)
-        .send('The movie with the given ID was not found.');
-
-    movies.push(movie);
-  }
+  const movieIds = user.ratings.map(r => r.movie);
+  const movies = await Movie.find({ _id: { $in: movieIds } });
 
   res.status(200).send(movies);
 });
@@ -387,28 +362,34 @@ userRouter.put('/rate', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $push: {
-      ratings: {
-        movie: req.body.id,
-        rating: req.body.rating,
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        ratings: {
+          movie: req.body.id,
+          rating: req.body.rating,
+        },
       },
-    },
-  });
+    }
+  );
 
   if (!user)
     return res
       .status(404)
       .send('The user with the given ID was not found.');
 
-  const movie = await Movie.findByIdAndUpdate(req.body.id, {
-    $push: {
-      ratings: {
-        id: id,
-        rating: req.body.rating,
+  const movie = await Movie.findByIdAndUpdate(
+    req.body.id,
+    {
+      $push: {
+        ratings: {
+          id: id,
+          rating: req.body.rating,
+        },
       },
-    },
-  });
+    }
+  );
 
   if (!movie)
     return res
@@ -423,26 +404,32 @@ userRouter.delete('/rate', auth, async (req: AuthRequest, res: Response) => {
   if (!token) return res.status(401).send('No token provided');
   
   const id = getIdFromToken(token);
-  const user = await User.findByIdAndUpdate(id, {
-    $pull: {
-      ratings: {
-        movie: req.body.id,
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $pull: {
+        ratings: {
+          movie: req.body.id,
+        },
       },
-    },
-  });
+    }
+  );
 
   if (!user)
     return res
       .status(404)
       .send('The user with the given ID was not found.');
 
-  const movie = await Movie.findByIdAndUpdate(req.body.id, {
-    $pull: {
-      ratings: {
-        id: id,
+  const movie = await Movie.findByIdAndUpdate(
+    req.body.id,
+    {
+      $pull: {
+        ratings: {
+          id: id,
+        },
       },
-    },
-  });
+    }
+  );
 
   if (!movie)
     return res
@@ -463,7 +450,7 @@ userRouter.post('/forgotPassword', async (req: express.Request, res: Response) =
   const code = Math.random()
     .toString(36)
     .replace(/[^a-z]+/g, '')
-    .substr(0, 9)
+    .substring(0, 9)
     .toUpperCase();
 
   const salt = await bcrypt.genSalt(10);
@@ -540,5 +527,3 @@ userRouter.post('/filteredMovies', auth, async (req: AuthRequest, res: Response)
 
   res.status(200).send(movies);
 });
-
-export default userRouter;

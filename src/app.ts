@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import morganBody from 'morgan-body';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -21,39 +20,41 @@ if (!db) {
   throw new Error('DB_URL environment variable is not defined');
 }
 
+mongoose.set('strictQuery', false);
 mongoose
-  .connect(db, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  } as mongoose.ConnectOptions)
+  .connect(db)
   .then(() => console.log('Connected to db'))
   .catch((err) => console.error('Database connection error:', err));
 
-winston.add(new winston.transports.File({ filename: 'logfile.log' }));
-winston.exceptions.handle(
-  new winston.transports.Console({ 
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+    new winston.transports.MongoDB({ db, level: 'error' })
+  ],
+  exceptionHandlers: [
+    new winston.transports.File({ filename: 'exceptions.log' })
+  ]
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
     format: winston.format.simple()
-  }),
-  new winston.transports.File({ filename: 'uncaughtExceptions.log' })
-);
-winston.add(
-  new winston.transports.MongoDB({
-    db: db,
-    options: { useUnifiedTopology: true }
-  })
-);
+  }));
+}
 
 process.on('unhandledRejection', (ex) => {
   throw ex;
 });
 
 app.use(cors());
-morganBody(app);
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+morganBody(app);
 app.use('/api/users', userRouter);
 app.use('/api/movies', movieRouter);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(error);
 
 app.get('/privacy', (_request, response) => {
