@@ -1,14 +1,17 @@
 import jwt from 'jsonwebtoken';
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../types';
+import type { AuthenticatedRequest } from '../users/types';
 
 export function auth(
-  req: AuthRequest,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void | Response {
+): void {
   const token = req.header('x-auth-token');
-  if (!token) return res.status(401).send('No token provided...');
+  if (!token) {
+    res.status(401).send('No token provided...');
+    return;
+  }
 
   try {
     const jwtPrivateKey = process.env.JWT_PRIVATE_KEY;
@@ -21,7 +24,7 @@ export function auth(
     };
     req.user = decoded;
     next();
-  } catch (ex) {
+  } catch {
     res.status(400).send('Invalid token...');
   }
 }

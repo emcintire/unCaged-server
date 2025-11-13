@@ -4,12 +4,12 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import winston from 'winston';
 import 'winston-mongodb';
-import 'express-async-errors';
 import path from 'path';
 import dotenv from 'dotenv';
 
 import { error } from './middleware';
-import { movieRouter, userRouter } from './routes';
+import { movieRouter } from './movies';
+import { userRouter } from './users';
 
 dotenv.config();
 
