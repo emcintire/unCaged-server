@@ -1,4 +1,3 @@
-import type { Document } from 'mongoose';
 import { z } from 'zod';
 
 export const quoteSchema = z.object({
@@ -7,4 +6,4 @@ export const quoteSchema = z.object({
   createdOn: z.date().optional(),
 });
 
-export type Quote = z.infer<typeof quoteSchema> & Document;
+export type QuoteData = z.infer<typeof quoteSchema>;

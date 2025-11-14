@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { movieRatingSchema } from './movieRatingSchema';
-import type { Document } from 'mongoose';
 
 export const movieSchema = z.object({
   avgRating: z.number().min(0).max(10).optional(),
@@ -15,4 +14,4 @@ export const movieSchema = z.object({
   genres: z.array(z.string()).optional().default([]),
 });
 
-export type Movie = z.infer<typeof movieSchema> & Document;
+export type MovieData = z.infer<typeof movieSchema>;

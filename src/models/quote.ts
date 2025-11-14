@@ -1,7 +1,11 @@
-import mongoose, { Schema } from 'mongoose';
-import type { Quote as QuoteType } from '../schemas';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import type { QuoteData } from '../schemas/quoteSchema';
 
-const quoteMongooseSchema = new Schema<QuoteType>({
+export type QuoteDocument = QuoteData & Document & {
+  _id: Types.ObjectId;
+};
+
+const quoteMongooseSchema = new Schema<QuoteDocument>({
   quote: {
     type: String,
     required: true,
@@ -20,4 +24,4 @@ const quoteMongooseSchema = new Schema<QuoteType>({
   },
 });
 
-export const Quote = mongoose.model<QuoteType>('Quote', quoteMongooseSchema);
+export const Quote = mongoose.model<QuoteDocument>('Quote', quoteMongooseSchema);

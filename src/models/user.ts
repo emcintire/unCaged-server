@@ -1,8 +1,16 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import type { User as UserType } from '../schemas';
+import type { UserData } from '../schemas/userSchema';
 
-const userSchema = new Schema<UserType>({
+type UserMethods = {
+  generateAuthToken(): string;
+};
+
+export type UserDocument = Document & UserData & UserMethods & {
+  _id: Types.ObjectId;
+};
+
+const userSchema = new Schema<UserDocument>({
   isAdmin: {
     type: Boolean,
     default: false,
@@ -61,4 +69,4 @@ userSchema.methods.generateAuthToken = function (): string {
   );
 };
 
-export const User = mongoose.model<UserType>('User', userSchema);
+export const User = mongoose.model<UserDocument>('User', userSchema);

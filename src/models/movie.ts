@@ -1,7 +1,11 @@
-import mongoose, { Schema } from 'mongoose';
-import type { Movie as MovieType } from '../schemas';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import type { MovieData } from '../schemas/movieSchema';
 
-const movieMongooseSchema = new Schema<MovieType>({
+export type MovieDocument = MovieData & Document & {
+  _id: Types.ObjectId;
+};
+
+const movieMongooseSchema = new Schema<MovieDocument>({
   title: {
     type: String,
     required: true,
@@ -58,4 +62,4 @@ const movieMongooseSchema = new Schema<MovieType>({
   ],
 });
 
-export const Movie = mongoose.model<MovieType>('Movie', movieMongooseSchema);
+export const Movie = mongoose.model<MovieDocument>('Movie', movieMongooseSchema);
