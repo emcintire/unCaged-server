@@ -1,4 +1,4 @@
-import { newUserSchema, loginSchema, updateUserSchema, movieSchema, quoteSchema } from '../schemas';
+import { newUserSchema, loginSchema, updateUserSchema, movieSchema, quoteSchema } from '@/schemas';
 
 describe('Zod Schema Type Safety Tests', () => {
   describe('User Registration Schema Validation', () => {

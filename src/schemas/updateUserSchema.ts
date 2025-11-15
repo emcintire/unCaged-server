@@ -1,6 +1,5 @@
 import z from 'zod';
-import { passwordRegex } from '../util/passwordRegex';
-import { passwordMessage } from '../util/passwordMessage';
+import { passwordRegex, passwordMessage } from '@/util';
 
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(100).optional(),

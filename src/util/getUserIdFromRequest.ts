@@ -1,6 +1,6 @@
 import type { Response } from 'express';
-import type { AuthenticatedRequest } from '../users/types/authenticatedRequest';
-import { getIdFromToken } from './getIdFromToken';
+import type { AuthenticatedRequest } from '@/types';
+import { getIdFromToken } from '@/util';
 
 /**
  * Extract user ID from authentication token

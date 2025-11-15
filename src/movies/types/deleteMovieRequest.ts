@@ -1,3 +1,3 @@
-import type { AuthenticatedRequest } from '../../users/types/authenticatedRequest';
+import type { AuthenticatedRequest } from '@/types';
 
 export type DeleteMovieRequest = AuthenticatedRequest<unknown, { id: string }>;

@@ -1,5 +1,5 @@
 import express from 'express';
-import { auth, admin } from '../middleware';
+import { auth, admin } from '@/middleware';
 import { MovieController } from './movie.controller';
 
 export const movieRouter = express.Router();

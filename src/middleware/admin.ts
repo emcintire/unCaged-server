@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from 'express';
-import type { AuthenticatedRequest } from '../users/types/authenticatedRequest';
+import type { AuthenticatedRequest } from '@/types';
 
 export function admin(
   req: AuthenticatedRequest,

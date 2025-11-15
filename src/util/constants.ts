@@ -1,3 +1,8 @@
+export const passwordMessage = 'Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 digit';
+
+// Password regex: at least 8 characters, 1 digit, 1 lowercase, 1 uppercase
+export const passwordRegex = /^.*(?=.{8,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
+
 export const quotes = [
   {
     quote: '"I never disrobe before gunplay."',

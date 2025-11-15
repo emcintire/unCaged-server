@@ -1,8 +1,8 @@
+import bcrypt from 'bcrypt';
 import request from 'supertest';
 import app from '../app';
-import { User } from '../models/user';
-import { userSchema, loginSchema, updateUserSchema } from '../schemas';
-import bcrypt from 'bcrypt';
+import { User } from '@/models';
+import { userSchema, loginSchema, updateUserSchema } from '@/schemas';
 
 describe('User API Endpoints', () => {
   let authToken: string;

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import type { UserData } from '../schemas/userSchema';
+import type { UserData } from '@/schemas';
 
 type UserMethods = {
   generateAuthToken(): string;

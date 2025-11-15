@@ -1,9 +1,8 @@
 import request from 'supertest';
-import app from '../app';
-import { Movie } from '../models/movie';
-import { User } from '../models/user';
-import { movieSchema } from '../schemas';
 import bcrypt from 'bcrypt';
+import app from '../app';
+import { Movie, User } from '@/models';
+import { movieSchema } from '@/schemas';
 
 describe('Movie API Endpoints', () => {
   let adminToken: string;

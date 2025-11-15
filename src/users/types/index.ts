@@ -9,9 +9,6 @@ export type { MovieActionDto } from './movieActionDto';
 export type { RateMovieDto } from './rateMovieDto';
 export type { FilteredMoviesDto } from './filteredMoviesDto';
 
-// Re-export base request types
-export type { AuthenticatedRequest, AuthRequest } from './authenticatedRequest';
-
 // Re-export request types
 export type { RegisterUserRequest } from './registerUserRequest';
 export type { UpdateUserRequest } from './updateUserRequest';

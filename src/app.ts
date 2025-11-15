@@ -4,10 +4,9 @@ import cors from 'cors';
 import winston from 'winston';
 import path from 'path';
 import dotenv from 'dotenv';
-
-import { error } from './middleware';
-import { movieRouter } from './movies';
-import { userRouter } from './users';
+import { error } from '@/middleware';
+import { movieRouter } from '@/movies';
+import { userRouter } from '@/users';
 
 dotenv.config();
 

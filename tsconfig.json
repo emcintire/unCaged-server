@@ -19,7 +19,17 @@
     "strict": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
-    "target": "ES2020"
+    "target": "ES2020",
+    "baseUrl": "./src",
+    "paths": {
+      "@/util": ["util"],
+      "@/movies": ["movies"],
+      "@/models": ["models"],
+      "@/middleware": ["middleware"],
+      "@/schemas": ["schemas"],
+      "@/types": ["types"],
+      "@/users": ["users"]
+    }
   },
   "include": ["src/**/*", "app.ts"],
   "exclude": ["node_modules", "dist"]

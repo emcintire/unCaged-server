@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import { User, Movie } from '../models';
+import { User, Movie } from '@/models';
 import type {
   RegisterUserDto,
   UpdateUserDto,
@@ -17,7 +17,7 @@ import {
   loginSchema,
   updateUserSchema,
   movieRatingSchema
-} from '../schemas';
+} from '@/schemas';
 
 export class UserService {
   /**

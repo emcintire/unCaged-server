@@ -1,5 +1,5 @@
-import { Movie, Quote } from '../models';
-import { movieSchema, quoteSchema } from '../schemas';
+import { Movie, Quote } from '@/models';
+import { movieSchema, quoteSchema } from '@/schemas';
 import type {
   CreateMovieDto,
   UpdateMovieDto,
@@ -7,7 +7,7 @@ import type {
   FindByTitleDto,
   CreateQuoteDto
 } from './types';
-import { quotes } from '../util';
+import { quotes } from '@/util';
 
 export class MovieService {
   /**

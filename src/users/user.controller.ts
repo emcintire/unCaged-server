@@ -1,6 +1,6 @@
 import type { Response } from 'express';
-import { UserService } from './user.service';
-import { getUserIdFromRequest } from '../util';
+import type { AuthRequest } from '@/types';
+import { getUserIdFromRequest } from '@/util';
 import type {
   RegisterUserRequest,
   UpdateUserRequest,
@@ -11,8 +11,8 @@ import type {
   ForgotPasswordRequest,
   CheckCodeRequest,
   FilteredMoviesRequest,
-  AuthRequest
 } from './types';
+import { UserService } from './user.service';
 
 const userService = new UserService();
 
