@@ -2,7 +2,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import winston from 'winston';
-import 'winston-mongodb';
 import path from 'path';
 import dotenv from 'dotenv';
 
@@ -34,8 +33,7 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-    new winston.transports.MongoDB({ db, level: 'error' })
+    new winston.transports.File({ filename: 'combined.log' })
   ],
   exceptionHandlers: [
     new winston.transports.File({ filename: 'exceptions.log' })
@@ -49,7 +47,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 process.on('unhandledRejection', (ex) => {
-  throw ex;
+  logger.error('Unhandled Rejection:', ex);
 });
 
 app.use(cors());
@@ -70,8 +68,22 @@ app.get('/support', (_request, response) => {
 
 // Only start server if not in test environment
 if (process.env.NODE_ENV !== 'test') {
-  const port = process.env.PORT || 5000;
-  app.listen(port, () => console.log('Connected to server'));
+  const port = Number(process.env.PORT) || 3000;
+  const server = app.listen(port);
+  
+  server.on('listening', () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+
+  server.on('error', (error: any) => {
+    console.error('Server error:', error);
+  });
+
+  process.on('SIGTERM', () => {
+    server.close(() => {
+      console.log('Server closed');
+    });
+  });
 }
 
 export default app;
