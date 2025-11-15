@@ -1,16 +1,16 @@
-import type { Response } from 'express';
-import type { AuthRequest } from '@/types';
+import type { Request, Response } from 'express';
+import type { AuthenticatedRequest } from '@/types';
 import { getUserIdFromRequest } from '@/util';
 import type {
-  RegisterUserRequest,
-  UpdateUserRequest,
-  ChangePasswordRequest,
-  LoginRequest,
-  MovieActionRequest,
-  RateMovieRequest,
-  ForgotPasswordRequest,
-  CheckCodeRequest,
-  FilteredMoviesRequest,
+  RegisterUserDto,
+  UpdateUserDto,
+  ChangePasswordDto,
+  LoginDto,
+  MovieActionDto,
+  RateMovieDto,
+  ForgotPasswordDto,
+  CheckCodeDto,
+  FilteredMoviesDto,
 } from './types';
 import { UserService } from './user.service';
 
@@ -20,7 +20,7 @@ export class UserController {
   /**
    * GET /api/users - Get current user
    */
-  async getCurrentUser(req: AuthRequest, res: Response) {
+  async getCurrentUser(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -35,7 +35,7 @@ export class UserController {
   /**
    * POST /api/users - Register new user
    */
-  async registerUser(req: RegisterUserRequest, res: Response) {
+  async registerUser(req: Request<unknown, unknown, RegisterUserDto>, res: Response) {
     try {
       const token = await userService.registerUser(req.body);
       res.send(token);
@@ -47,7 +47,7 @@ export class UserController {
   /**
    * PUT /api/users - Update user profile
    */
-  async updateUser(req: UpdateUserRequest, res: Response) {
+  async updateUser(req: AuthenticatedRequest<UpdateUserDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -62,7 +62,7 @@ export class UserController {
   /**
    * PUT /api/users/changePassword - Change password
    */
-  async changePassword(req: ChangePasswordRequest, res: Response) {
+  async changePassword(req: AuthenticatedRequest<ChangePasswordDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -77,7 +77,7 @@ export class UserController {
   /**
    * POST /api/users/login - Login user
    */
-  async login(req: LoginRequest, res: Response) {
+  async login(req: Request<unknown, unknown, LoginDto>, res: Response) {
     try {
       const token = await userService.login(req.body);
       res.send(token);
@@ -89,7 +89,7 @@ export class UserController {
   /**
    * DELETE /api/users - Delete user
    */
-  async deleteUser(req: AuthRequest, res: Response) {
+  async deleteUser(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -104,7 +104,7 @@ export class UserController {
   /**
    * GET /api/users/favorites - Get favorites
    */
-  async getFavorites(req: AuthRequest, res: Response) {
+  async getFavorites(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -119,7 +119,7 @@ export class UserController {
   /**
    * PUT /api/users/favorites - Add to favorites
    */
-  async addFavorite(req: MovieActionRequest, res: Response) {
+  async addFavorite(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -134,7 +134,7 @@ export class UserController {
   /**
    * DELETE /api/users/favorites - Remove from favorites
    */
-  async removeFavorite(req: MovieActionRequest, res: Response) {
+  async removeFavorite(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -149,7 +149,7 @@ export class UserController {
   /**
    * GET /api/users/unseen - Get unseen movies
    */
-  async getUnseenMovies(req: AuthRequest, res: Response) {
+  async getUnseenMovies(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -164,7 +164,7 @@ export class UserController {
   /**
    * GET /api/users/seen - Get seen movies
    */
-  async getSeenMovies(req: AuthRequest, res: Response) {
+  async getSeenMovies(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -179,7 +179,7 @@ export class UserController {
   /**
    * PUT /api/users/seen - Mark as seen
    */
-  async markAsSeen(req: MovieActionRequest, res: Response) {
+  async markAsSeen(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -194,7 +194,7 @@ export class UserController {
   /**
    * DELETE /api/users/seen - Remove from seen
    */
-  async removeFromSeen(req: MovieActionRequest, res: Response) {
+  async removeFromSeen(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -209,7 +209,7 @@ export class UserController {
   /**
    * GET /api/users/watchlist - Get watchlist
    */
-  async getWatchlist(req: AuthRequest, res: Response) {
+  async getWatchlist(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -224,7 +224,7 @@ export class UserController {
   /**
    * PUT /api/users/watchlist - Add to watchlist
    */
-  async addToWatchlist(req: MovieActionRequest, res: Response) {
+  async addToWatchlist(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -239,7 +239,7 @@ export class UserController {
   /**
    * DELETE /api/users/watchlist - Remove from watchlist
    */
-  async removeFromWatchlist(req: MovieActionRequest, res: Response) {
+  async removeFromWatchlist(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -254,7 +254,7 @@ export class UserController {
   /**
    * GET /api/users/rate - Get ratings
    */
-  async getRatings(req: AuthRequest, res: Response) {
+  async getRatings(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -269,7 +269,7 @@ export class UserController {
   /**
    * PUT /api/users/rate - Rate a movie
    */
-  async rateMovie(req: RateMovieRequest, res: Response) {
+  async rateMovie(req: AuthenticatedRequest<RateMovieDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -284,7 +284,7 @@ export class UserController {
   /**
    * DELETE /api/users/rate - Delete rating
    */
-  async deleteRating(req: MovieActionRequest, res: Response) {
+  async deleteRating(req: AuthenticatedRequest<MovieActionDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;
@@ -299,7 +299,7 @@ export class UserController {
   /**
    * POST /api/users/forgotPassword - Send reset code
    */
-  async forgotPassword(req: ForgotPasswordRequest, res: Response) {
+  async forgotPassword(req: Request<unknown, unknown, ForgotPasswordDto>, res: Response) {
     try {
       await userService.forgotPassword(req.body);
       res.sendStatus(200);
@@ -311,7 +311,7 @@ export class UserController {
   /**
    * POST /api/users/checkCode - Check reset code
    */
-  async checkResetCode(req: CheckCodeRequest, res: Response) {
+  async checkResetCode(req: Request<unknown, unknown, CheckCodeDto>, res: Response) {
     try {
       await userService.checkResetCode(req.body);
       res.sendStatus(200);
@@ -323,7 +323,7 @@ export class UserController {
   /**
    * POST /api/users/filteredMovies - Get filtered movies
    */
-  async getFilteredMovies(req: FilteredMoviesRequest, res: Response) {
+  async getFilteredMovies(req: AuthenticatedRequest<FilteredMoviesDto>, res: Response) {
     try {
       const userId = getUserIdFromRequest(req, res);
       if (!userId) return;

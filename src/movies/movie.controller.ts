@@ -1,14 +1,11 @@
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 import { MovieService } from './movie.service';
 import type {
-  GetMoviesRequest,
-  FindByIdRequest,
-  FindByTitleParamRequest,
-  FindByTitleRequest,
-  CreateMovieRequest,
-  UpdateMovieRequest,
-  AvgRatingRequest,
-  CreateQuoteRequest
+  GetMoviesDto,
+  FindByTitleDto,
+  CreateMovieDto,
+  UpdateMovieDto,
+  CreateQuoteDto
 } from './types';
 
 const movieService = new MovieService();
@@ -17,7 +14,7 @@ export class MovieController {
   /**
    * GET /api/movies - Get all movies
    */
-  async getAllMovies(_req: GetMoviesRequest, res: Response) {
+  async getAllMovies(_req: Request<unknown, unknown, GetMoviesDto>, res: Response) {
     try {
       const movies = await movieService.getAllMovies();
       res.status(200).send(movies);
@@ -29,7 +26,7 @@ export class MovieController {
   /**
    * POST /api/movies/getMovies - Get movies with sorting
    */
-  async getMoviesWithSort(req: GetMoviesRequest, res: Response) {
+  async getMoviesWithSort(req: Request<unknown, unknown, GetMoviesDto>, res: Response) {
     try {
       const movies = await movieService.getAllMovies(req.body);
       res.status(200).send(movies);
@@ -41,7 +38,7 @@ export class MovieController {
   /**
    * GET /api/movies/findByID/:id - Find movie by ID
    */
-  async findMovieById(req: FindByIdRequest, res: Response) {
+  async findMovieById(req: Request<{ id: string }>, res: Response) {
     try {
       const movie = await movieService.findMovieById(req.params.id);
       res.status(200).send(movie);
@@ -53,7 +50,7 @@ export class MovieController {
   /**
    * GET /api/movies/findByTitle/:title - Find movies by title (URL param)
    */
-  async findMoviesByTitleParam(req: FindByTitleParamRequest, res: Response) {
+  async findMoviesByTitleParam(req: Request<{ title: string }>, res: Response) {
     try {
       const movies = await movieService.findMoviesByTitleParam(req.params.title);
       res.status(200).send(movies);
@@ -65,7 +62,7 @@ export class MovieController {
   /**
    * POST /api/movies/findByTitle - Find movies by title with sorting
    */
-  async findMoviesByTitle(req: FindByTitleRequest, res: Response) {
+  async findMoviesByTitle(req: Request<unknown, unknown, FindByTitleDto>, res: Response) {
     try {
       const movies = await movieService.findMoviesByTitle(req.body);
       res.status(200).send(movies);
@@ -77,7 +74,7 @@ export class MovieController {
   /**
    * POST /api/movies - Create a new movie
    */
-  async createMovie(req: CreateMovieRequest, res: Response) {
+  async createMovie(req: Request<unknown, unknown, CreateMovieDto>, res: Response) {
     try {
       await movieService.createMovie(req.body);
       res.sendStatus(200);
@@ -89,7 +86,7 @@ export class MovieController {
   /**
    * PUT /api/movies/:id - Update a movie
    */
-  async updateMovie(req: UpdateMovieRequest, res: Response) {
+  async updateMovie(req: Request<{ id: string }, unknown, UpdateMovieDto>, res: Response) {
     try {
       await movieService.updateMovie(req.params.id, req.body);
       res.sendStatus(200);
@@ -101,7 +98,7 @@ export class MovieController {
   /**
    * GET /api/movies/avgRating/:id - Get average rating
    */
-  async getAverageRating(req: AvgRatingRequest, res: Response) {
+  async getAverageRating(req: Request<{ id: string }>, res: Response) {
     try {
       const avgRating = await movieService.getAverageRating(req.params.id);
       res.status(200).send(avgRating);
@@ -113,7 +110,7 @@ export class MovieController {
   /**
    * GET /api/movies/updateRatings - Update all movie ratings
    */
-  async updateAllRatings(_req: GetMoviesRequest, res: Response) {
+  async updateAllRatings(_req: Request, res: Response) {
     try {
       await movieService.updateAllRatings();
       res.sendStatus(200);
@@ -125,7 +122,7 @@ export class MovieController {
   /**
    * PUT /api/movies/updateRating/:id - Update single movie rating
    */
-  async updateMovieRating(req: AvgRatingRequest, res: Response) {
+  async updateMovieRating(req: Request<{ id: string }>, res: Response) {
     try {
       await movieService.updateMovieRating(req.params.id);
       res.sendStatus(200);
@@ -137,7 +134,7 @@ export class MovieController {
   /**
    * GET /api/movies/quote - Get quote of the day
    */
-  async getQuote(_req: GetMoviesRequest, res: Response) {
+  async getQuote(_req: Request, res: Response) {
     try {
       const quote = await movieService.getQuote();
       res.status(200).send(quote);
@@ -149,7 +146,7 @@ export class MovieController {
   /**
    * POST /api/movies/quote - Create a new quote
    */
-  async createQuote(req: CreateQuoteRequest, res: Response) {
+  async createQuote(req: Request<unknown, unknown, CreateQuoteDto>, res: Response) {
     try {
       const quote = await movieService.createQuote(req.body);
       res.status(200).send(quote);

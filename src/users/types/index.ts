@@ -8,14 +8,3 @@ export type { CheckCodeDto } from './checkCodeDto';
 export type { MovieActionDto } from './movieActionDto';
 export type { RateMovieDto } from './rateMovieDto';
 export type { FilteredMoviesDto } from './filteredMoviesDto';
-
-// Re-export request types
-export type { RegisterUserRequest } from './registerUserRequest';
-export type { UpdateUserRequest } from './updateUserRequest';
-export type { ChangePasswordRequest } from './changePasswordRequest';
-export type { LoginRequest } from './loginRequest';
-export type { ForgotPasswordRequest } from './forgotPasswordRequest';
-export type { CheckCodeRequest } from './checkCodeRequest';
-export type { MovieActionRequest } from './movieActionRequest';
-export type { RateMovieRequest } from './rateMovieRequest';
-export type { FilteredMoviesRequest } from './filteredMoviesRequest';
