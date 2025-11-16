@@ -12,15 +12,15 @@ dotenv.config();
 
 const app = express();
 
-const db = process.env.DB_URL;
-if (!db) {
-  throw new Error('DB_URL environment variable is not defined');
-}
-
 mongoose.set('strictQuery', false);
 
 // Only connect if not in test environment (tests handle their own connection)
 if (process.env.NODE_ENV !== 'test') {
+  const db = process.env.DB_URL;
+  if (!db) {
+    throw new Error('DB_URL environment variable is not defined');
+  }
+
   mongoose
     .connect(db)
     .then(() => console.log('Connected to db'))

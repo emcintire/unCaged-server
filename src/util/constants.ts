@@ -22,13 +22,13 @@ export const quotes = [
   },
   {
     quote: `"Shoot him again... His soul's still dancing."`,
-    subquote: `-Terence McDonagh, 'Bad Lieutenant: Port Of Call'`,
+    subquote: `-Terence McDonagh, 'Bad Lieutenant: Port of Call New Orleans'`,
   },
   {
     quote: `"I did a bare 360 triple backflip in front of twenty-two thousand people. It's kind of funny, it's on YouTube, check it out"`,
     subquote: `-Johnny Blaze, 'Ghost Rider: Spirit Of Vengeance'`,
   },
-  {
+  { 
     quote: `"I just stole fifty cars in one night! I'm a little tired, little wired, and I think I deserve a little appreciation!"`,
     subquote: `-Randall 'Memphis' Raines, 'Gone In Sixty Seconds'`,
   },
