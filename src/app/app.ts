@@ -2,11 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import winston from 'winston';
-import path from 'path';
 import dotenv from 'dotenv';
 import { error } from '@/middleware';
-import { movieRouter } from '@/movies';
-import { userRouter } from '@/users';
+import { setupRoutes } from 'app/routes';
 
 dotenv.config();
 
@@ -52,18 +50,9 @@ process.on('unhandledRejection', (ex) => {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-app.use('/api/users', userRouter);
-app.use('/api/movies', movieRouter);
 app.use(error);
 
-app.get('/privacy', (_request, response) => {
-  response.sendFile(path.join(__dirname, '../public/privacy.html'));
-});
-
-app.get('/support', (_request, response) => {
-  response.sendFile(path.join(__dirname, '../public/support.html'));
-});
+setupRoutes(app);
 
 // Only start server if not in test environment
 if (process.env.NODE_ENV !== 'test') {

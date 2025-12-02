@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
-import app from '../app';
+import app from '../app/app';
 import { User } from '@/models';
 import { userSchema, loginSchema, updateUserSchema } from '@/schemas';
 

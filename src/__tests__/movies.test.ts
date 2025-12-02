@@ -1,6 +1,6 @@
 import request from 'supertest';
 import bcrypt from 'bcrypt';
-import app from '../app';
+import app from '../app/app';
 import { Movie, User } from '@/models';
 import { movieSchema } from '@/schemas';
 
