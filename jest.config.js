@@ -17,7 +17,5 @@ module.exports = {
   },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   testTimeout: 10000,
-  // Ensure tests don't hang
-  forceExit: true,
   detectOpenHandles: false,
 };

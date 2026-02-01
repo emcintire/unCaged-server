@@ -7,41 +7,48 @@ let mongoServer: MongoMemoryServer;
 process.env.NODE_ENV = 'test';
 process.env.JWT_PRIVATE_KEY = 'test-jwt-secret-key-for-testing';
 
+async function ensureMongooseDisconnected() {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
+}
+
+async function startInMemoryMongo(): Promise<string> {
+  mongoServer = await MongoMemoryServer.create();
+  return mongoServer.getUri();
+}
+
+async function stopInMemoryMongo() {
+  if (!mongoServer) return;
+  await mongoServer.stop({ doCleanup: true, force: true });
+}
+
+async function clearDatabase() {
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+}
+
 // Set up in-memory MongoDB before all tests
 beforeAll(async () => {
-  // Close any existing connections
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.disconnect();
-  }
+  await ensureMongooseDisconnected();
 
-  // Start in-memory MongoDB server
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  
-  // Set the DB_URL to the in-memory database
+  const mongoUri = await startInMemoryMongo();
   process.env.DB_URL = mongoUri;
-  
-  // Connect to the in-memory database
+
   await mongoose.connect(mongoUri);
 });
 
 // Clean up after all tests
 afterAll(async () => {
-  // Close all database connections
-  await mongoose.disconnect();
-  
-  // Stop the in-memory MongoDB server
-  if (mongoServer) {
-    await mongoServer.stop();
-  }
-}, 10000); // Increase timeout for cleanup
+  await ensureMongooseDisconnected();
+  await stopInMemoryMongo();
+}, 10000);
 
 // Clear all collections between tests for isolation
 afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    await collections[key].deleteMany({});
-  }
+  await clearDatabase();
 });
 
 // Suppress console output during tests
