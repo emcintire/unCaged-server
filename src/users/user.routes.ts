@@ -1,21 +1,29 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { auth } from '@/middleware';
 import { UserController } from './user.controller';
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 export const userRouter = express.Router();
 const controller = new UserController();
 
 // User profile routes
 userRouter.get('/', auth, controller.getCurrentUser.bind(controller));
-userRouter.post('/', controller.registerUser.bind(controller));
+userRouter.post('/', authLimiter, controller.registerUser.bind(controller));
 userRouter.put('/', auth, controller.updateUser.bind(controller));
 userRouter.delete('/', auth, controller.deleteUser.bind(controller));
 
 // Authentication routes
-userRouter.post('/login', controller.login.bind(controller));
+userRouter.post('/login', authLimiter, controller.login.bind(controller));
 userRouter.put('/changePassword', auth, controller.changePassword.bind(controller));
-userRouter.post('/forgotPassword', controller.forgotPassword.bind(controller));
-userRouter.post('/checkCode', controller.checkResetCode.bind(controller));
+userRouter.post('/forgotPassword', authLimiter, controller.forgotPassword.bind(controller));
+userRouter.post('/checkCode', authLimiter, controller.checkResetCode.bind(controller));
 
 // Favorites routes
 userRouter.get('/favorites', auth, controller.getFavorites.bind(controller));

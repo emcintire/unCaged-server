@@ -43,6 +43,9 @@ const userSchema = new Schema<UserDocument>({
     default: '',
     maxlength: 100,
   },
+  resetCodeExpiry: {
+    type: Date,
+  },
   img: {
     type: String,
     default: '',

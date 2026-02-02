@@ -7,7 +7,7 @@ import type {
   FindByTitleDto,
   CreateQuoteDto
 } from './types';
-import { quotes } from '@/util';
+import { escapeRegex, quotes } from '@/util';
 
 export class MovieService {
   /**
@@ -38,7 +38,7 @@ export class MovieService {
    */
   async findMoviesByTitleParam(title: string) {
     return await Movie.find({
-      title: { $regex: title, $options: 'i' },
+      title: { $regex: escapeRegex(title), $options: 'i' },
     });
   }
 
@@ -49,7 +49,7 @@ export class MovieService {
     if (dto.category && dto.direction) {
       if (dto.title) {
         return await Movie.find({
-          title: { $regex: dto.title, $options: 'i' },
+          title: { $regex: escapeRegex(dto.title), $options: 'i' },
         }).sort({
           [dto.category]: dto.direction,
         });
@@ -63,7 +63,7 @@ export class MovieService {
     // Default sort when category/direction not provided
     if (dto.title) {
       return await Movie.find({
-        title: { $regex: dto.title, $options: 'i' },
+        title: { $regex: escapeRegex(dto.title), $options: 'i' },
       }).sort('director');
     } else {
       return await Movie.find().sort('director');
@@ -139,18 +139,8 @@ export class MovieService {
     const movies = await Movie.find();
 
     for (const movie of movies) {
-      const response = await fetch(
-        process.env.SERVER_URL + '/movies/avgRating/' + movie._id,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      const body = await response.text();
-      movie.avgRating = parseFloat(body);
+      const avg = await this.getAverageRating(String(movie._id));
+      movie.avgRating = parseFloat(avg);
       await movie.save();
     }
   }
@@ -164,18 +154,8 @@ export class MovieService {
       throw new Error('The movie with the given ID was not found.');
     }
 
-    const response = await fetch(
-      process.env.SERVER_URL + '/movies/avgRating/' + movie._id,
-      {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    const body = await response.text();
-    movie.avgRating = parseFloat(body);
+    const avg = await this.getAverageRating(String(movie._id));
+    movie.avgRating = parseFloat(avg);
     await movie.save();
   }
 

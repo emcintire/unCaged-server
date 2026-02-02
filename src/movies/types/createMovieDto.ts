@@ -2,11 +2,9 @@ export type CreateMovieDto = {
   title: string;
   director: string;
   description: string;
-  date: Date;
-  rating: number;
-  runtime: number;
+  date: string;
+  rating: string;
+  runtime: string;
   img: string;
-  year: number;
-  genre: string[];
   genres: string[];
 };

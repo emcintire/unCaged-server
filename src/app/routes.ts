@@ -4,6 +4,10 @@ import { movieRouter } from '@/movies';
 import { userRouter } from '@/users';
 
 export function setupRoutes(app: Express) {
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
   app.use('/api/users', userRouter);
   app.use('/api/movies', movieRouter);
 

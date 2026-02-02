@@ -18,8 +18,8 @@ movieRouter.put('/:id', auth, admin, controller.updateMovie.bind(controller));
 
 // Rating routes
 movieRouter.get('/avgRating/:id', controller.getAverageRating.bind(controller));
-movieRouter.get('/updateRatings', controller.updateAllRatings.bind(controller));
-movieRouter.put('/updateRating/:id', controller.updateMovieRating.bind(controller));
+movieRouter.get('/updateRatings', auth, admin, controller.updateAllRatings.bind(controller));
+movieRouter.put('/updateRating/:id', auth, admin, controller.updateMovieRating.bind(controller));
 
 // Quote routes
 movieRouter.get('/quote', controller.getQuote.bind(controller));

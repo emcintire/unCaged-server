@@ -279,28 +279,23 @@ export class UserService {
       throw new Error(validation.error.issues[0].message);
     }
 
-    const user = await User.findByIdAndUpdate(userId, {
-      $push: {
-        ratings: {
-          movie: dto.id,
-          rating: dto.rating,
-        },
-      },
+    // Remove existing rating first to prevent duplicates
+    await User.findByIdAndUpdate(userId, {
+      $pull: { ratings: { movie: dto.id } },
     });
-
+    const user = await User.findByIdAndUpdate(userId, {
+      $push: { ratings: { movie: dto.id, rating: dto.rating } },
+    });
     if (!user) {
       throw new Error('The user with the given ID was not found.');
     }
 
-    const movie = await Movie.findByIdAndUpdate(dto.id, {
-      $push: {
-        ratings: {
-          id: userId,
-          rating: dto.rating,
-        },
-      },
+    await Movie.findByIdAndUpdate(dto.id, {
+      $pull: { ratings: { id: userId } },
     });
-
+    const movie = await Movie.findByIdAndUpdate(dto.id, {
+      $push: { ratings: { id: userId, rating: dto.rating } },
+    });
     if (!movie) {
       throw new Error('The movie with the given ID was not found.');
     }
@@ -345,6 +340,7 @@ export class UserService {
     const hashedCode = await bcrypt.hash(randomNum, salt);
 
     user.resetCode = hashedCode;
+    user.resetCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     await user.save();
 
     const transporter = nodemailer.createTransport({
@@ -374,12 +370,17 @@ export class UserService {
       throw new Error('No user with that email address');
     }
 
+    if (user.resetCodeExpiry && user.resetCodeExpiry < new Date()) {
+      throw new Error('Reset code has expired');
+    }
+
     const validCode = await bcrypt.compare(dto.code, user.resetCode);
     if (!validCode) {
       throw new Error('Invalid Code');
     }
 
     user.resetCode = '';
+    user.resetCodeExpiry = undefined;
     await user.save();
   }
 
@@ -395,7 +396,7 @@ export class UserService {
     let movies = await Movie.find();
 
     if (dto.unseen) {
-      movies = movies.filter((m) => user.seen.includes(m.id));
+      movies = movies.filter((m) => !user.seen.includes(m.id));
     }
 
     if (dto.watchlist) {
